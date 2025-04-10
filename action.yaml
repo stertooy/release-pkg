@@ -1,0 +1,48 @@
+---
+name: "Prepare an archive tarball"
+description: "Be aware that the only responsibility of this repository is validation and archive tarball preparation."
+icon: "archive"
+color: "black"
+inputs:
+  revision:
+    description: "The revision to be used in the tarball"
+    default: ${{ github.event.repository.name }}-${{ github.ref_name }}
+    required: true
+  archive-file:
+    description: "The name of the archive tarball to be created"
+    default: ${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Cleanup before making a tarball
+      shell: bash
+      run: |
+         echo "::group:: Cleanup git and github related files"
+         rm -rvf .git
+         rm -rvf .github
+         rm -fv .codecov.yaml
+         rm -fv .gaplint.yml
+         rm -fv requirements.txt
+
+         echo "::group:: Cleanup macOS metadata"
+         find . -name .DS_Store -exec rm -f {} +
+
+         echo "::group:: Cleanup LaTeX auxiliary files"
+         find doc \( -name '*.aux' -o -name '*.bbl' -o -name '*.blg' -o -name '*.brf' -o -name '*.idx' -o -name '*.ilg' -o -name '*.ind' -o -name '*.log' -o -name '*.out' -o -name '*.pnr' -o -name '*.toc' -o -name '*.tst' \) -exec rm -f {} +
+
+    - name: Build an archive tarball
+      shell: bash
+      run: |
+        mkdir -pv $(dirname ${{ inputs.archive-file }})
+        touch ${{ inputs.archive-file }}
+        tar -vczf ${{ inputs.archive-file }} --exclude=${{ inputs.archive-file }} --transform 's,^\.,${{ inputs.revision }},' .
+
+
+    - name: GitHub - Upload artifacts
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          ${{ inputs.archive-file }}
+          doc/manual.pdf

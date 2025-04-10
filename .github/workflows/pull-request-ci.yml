@@ -1,0 +1,29 @@
+---
+name: Continuous Integration for action
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test action
+    runs-on: ubuntu-latest
+    steps:
+      # the order of the checkout actions is important because all contents of
+      # the target folder of the checkout action is removed
+      - uses: actions/checkout@v4
+        with:
+          repository: gap-packages/example
+
+      - uses: actions/checkout@v4
+        with:
+          path: this-action/
+
+      - name: gap -- setup
+        uses: gap-actions/setup-gap@v2
+
+      - name: gap -- build docs
+        uses: gap-actions/build-pkg-docs@v1
+
+      - uses: ./this-action/
