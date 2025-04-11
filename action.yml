@@ -42,7 +42,6 @@ runs:
         # Get necessary info from package-info.json
         URL=$(cat package-info.json | jq -r '.ArchiveURL')
         DOCLOC=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile')
-        echo $DOCLOC
         BASENAME=$(basename $URL)
         DOC=$(basename $DOCLOC)
         ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")
