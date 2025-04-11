@@ -15,6 +15,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Generate package-info.json"
+      shell: bash
+      run: |
+        gap -A -q ${{ github.action_path }}/pkginfo_to_json.g
+
     - name: Cleanup before making a tarball
       shell: bash
       run: |
@@ -45,4 +50,6 @@ runs:
       with:
         files: |
           ${{ inputs.archive-file }}
+          PackageInfo.json
+          PackageInfo.g
           doc/manual.pdf
