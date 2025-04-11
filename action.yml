@@ -15,6 +15,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Validate PackageInfo.g"
+      shell: bash
+      run: |
+        gap -A -q -c 'QuitGap(ValidatePackageInfo("PackageInfo.g"));'
+
     - name: "Generate package-info.json"
       shell: bash
       run: |
