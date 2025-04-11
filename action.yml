@@ -45,7 +45,7 @@ runs:
         echo $DOCLOC
         BASENAME=$(basename $URL)
         DOC=$(basename $DOCLOC)
-        ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats')
+        ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")
         
         # Move necessary files to subfolder
         shopt -s extglob
