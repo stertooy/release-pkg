@@ -29,10 +29,9 @@ runs:
       shell: bash
       run: |
          echo "::group:: Cleanup git and github related files"
-         rm -rvf .git
-         rm -rvf .github
-         rm -fv .codecov.yaml
-         rm -fv .gaplint.yml
+         rm -rvf .git* .hg* .cvs* .circleci
+         rm -fv .codecov.* .travis.* .appveyor.* azure-pipelines.*
+         rm -fv .gaplint.*
          rm -fv requirements.txt
 
          echo "::group:: Cleanup macOS metadata"
