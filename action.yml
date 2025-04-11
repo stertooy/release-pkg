@@ -3,15 +3,7 @@ name: "Prepare an archive tarball"
 description: "Be aware that the only responsibility of this repository is validation and archive tarball preparation."
 icon: "archive"
 color: "black"
-inputs:
-  revision:
-    description: "The revision to be used in the tarball"
-    default: ${{ github.event.repository.name }}-${{ github.ref_name }}
-    required: true
-  archive-file:
-    description: "The name of the archive tarball to be created"
-    default: ${{ github.event.repository.name }}-${{ github.ref_name }}.tar.gz
-    required: true
+
 runs:
   using: "composite"
   steps:
