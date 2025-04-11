@@ -25,5 +25,7 @@ jobs:
 
       - name: gap -- build docs
         uses: gap-actions/build-pkg-docs@v1
+        with:
+          use-latex: true
 
       - uses: ./this-action/
