@@ -19,7 +19,7 @@ if IsBound(pkginfo.PackageDoc) and not IsList(pkginfo.PackageDoc) then
   pkginfo.PackageDoc := [pkginfo.PackageDoc];
 fi;
 
-output := OutputTextFile("package-info.json", true );
+output := OutputTextFile("package-info.json", false );
 GapToJsonStream(output, pkginfo);
 CloseStream(output);
 
