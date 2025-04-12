@@ -14,18 +14,18 @@ runs:
         gap -A -q -c 'QuitGap(ValidatePackageInfo("PackageInfo.g"));'
 
     - name: "Generate package-info.json"
+      id: data
       shell: bash
       run: |
         gap -A -q ${{ github.action_path }}/pkginfo_to_json.g
         # Todo: throw error if this somehow failed
 
         # Get necessary info from package-info.json
-        PKG=$(cat package-info.json | jq -r '.PackageName')
-        VERSION=$(cat package-info.json | jq -r '.Version')
-        DATE=$(cat package-info.json | jq -r '.Date')
-        echo $PKG $VERSION $DATE
+        echo "PKG=$(cat package-info.json | jq -r '.PackageName')" >> "$GITHUB_ENV"
+        echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
+        echo "DATE=$(cat package-info.json | jq -r '.Date')" >> $GITHUB_ENV"
 
-        ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")
+        echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         
         TMP=($(cat package-info.json | jq -r '.ArchiveURL' | tr "/" " "))
         if [ "${#TMP[@]}" -eq 8 ] &&
@@ -33,12 +33,9 @@ runs:
            [ "${TMP[1]}" = "github.com" ] &&
            [ "${TMP[4]}" = "releases" ] &&
            [ "${TMP[5]}" = "download" ]; then
-            REPO=${TMP[2]}/${TMP[3]}
-            echo REPO: $REPO
-            TAG=${TMP[6]}
-            echo TAG: $TAG
-            BASENAME=${TMP[7]}
-            echo BASENAME: $BASENAME
+            echo "REPO=${TMP[2]}/${TMP[3]}" >> "$GITHUB_ENV"
+            echo "TAG=${TMP[6]}" >> "$GITHUB_ENV"
+            echo "BASENAME=${TMP[7]}" >> "$GITHUB_ENV"
         else
             # Throw error here or exit?
             echo "Problem with ArchiveURL"
@@ -46,7 +43,8 @@ runs:
 
         # Todo: possibly multiple PDF files?
         DOCLOC=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile')
-        DOC=$(basename $DOCLOC)
+        echo "DOC=$(basename $DOCLOC)" >> "$GITHUB_ENV"
+        
 
     - name: Cleanup before making a tarball
       shell: bash
@@ -65,6 +63,8 @@ runs:
 
     - name: Create archives 
       shell: bash
+      with:
+        {{ steps.
       run: |
         # Move necessary files to subfolder
         shopt -s extglob
@@ -90,6 +90,7 @@ runs:
             fi
         done
         ls -l .
+        echo "BASENAME=$BASENAME" >> $GITHUB_OUTPUT
 
     - name: Make copy of manual
       shell: bash
