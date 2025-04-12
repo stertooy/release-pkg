@@ -89,6 +89,7 @@ runs:
                 echo "failed creating $FULLNAME"
             fi
         done
+        ls -l .
 
     - name: Make copy of manual
       shell: bash
@@ -110,13 +111,6 @@ runs:
         EOF
         )
 
-notice "Creating new release $TAG on GitHub"
-response=$(curl -s -S -H "Content-Type: application/json" \
- -X POST --data "$DATA" "$API_URL" -H "Authorization: token $TOKEN")
-    - name: GitHub - Upload artifacts
-      uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          PackageInfo.json
-          manual.pdf
+        echo "Creating new release $TAG on GitHub"
+        # response=$(curl -s -S -H "Content-Type: application/json" \
+        #  -X POST --data "$DATA" "$API_URL" -H "Authorization: token $TOKEN")
