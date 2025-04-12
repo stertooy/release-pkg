@@ -25,7 +25,7 @@ runs:
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "DATE=$(cat package-info.json | jq -r '.Date')" >> "$GITHUB_ENV"
 
-        echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
+        echo "ARCHIVE_FORMATS=($(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " "))" >> "$GITHUB_ENV"
         
         TMP=($(cat package-info.json | jq -r '.ArchiveURL' | tr "/" " "))
         if [ "${#TMP[@]}" -eq 8 ] &&
@@ -70,7 +70,7 @@ runs:
         mv !($BASENAME|package-info.json) $BASENAME
         
         # Make archives
-        for EXT in $ARCHIVE_FORMATS ; do
+        for EXT in ${ARCHIVE_FORMATS[@]} ; do
             ARCHIVENAME=$BASENAME$EXT
             FULLNAME="$PWD/$ARCHIVENAME"
             echo "Creating $ARCHIVENAME ..."
@@ -87,8 +87,8 @@ runs:
                 echo "failed creating $FULLNAME"
             fi
         done
+        echo "ARCHIVE_FILES=${ARCHIVE_FORMATS[@]/#/$BASENAME}" >> "$GITHUB_ENV"
         ls -l .
-        echo "BASENAME=$BASENAME" >> $GITHUB_OUTPUT
 
     - name: Make copy of manual
       shell: bash
@@ -102,10 +102,10 @@ runs:
         body: "Release for ${{ env.PKG }}"
         name: "${{ env.PKG }} ${{ env.VERSION }}"
         draft: false
-        pre-release: false
+        prerelease: false
         fail_on_unmatched_files: true
         tag_name: "${{ env.TAG }}"
         files: |
           package-info.json
           ${{ env.DOC }}
-          ${{ env.BASENAME }}.{tar.gz,tar.bz2,zip}
+          ${{ env.ARCHIVE_FILES }}
