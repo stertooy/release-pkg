@@ -63,8 +63,6 @@ runs:
 
     - name: Create archives 
       shell: bash
-      with:
-        {{ steps.
       run: |
         # Move necessary files to subfolder
         shopt -s extglob
