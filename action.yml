@@ -10,6 +10,8 @@ runs:
     - name: "Validate PackageInfo.g"
       shell: bash
       run: |
+        set -e
+        
         # Note: this also checks if manual output is present
         gap -A -q -c 'QuitGap(ValidatePackageInfo("PackageInfo.g"));'
 
@@ -17,6 +19,8 @@ runs:
       id: data
       shell: bash
       run: |
+        set -e
+        
         gap -A -q ${{ github.action_path }}/pkginfo_to_json.g
         # Todo: throw error if this somehow failed
 
@@ -25,7 +29,7 @@ runs:
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "DATE=$(cat package-info.json | jq -r '.Date')" >> "$GITHUB_ENV"
 
-        echo "ARCHIVE_FORMATS=($(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " "))" >> "$GITHUB_ENV"
+        echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         
         TMP=($(cat package-info.json | jq -r '.ArchiveURL' | tr "/" " "))
         if [ "${#TMP[@]}" -eq 8 ] &&
@@ -49,21 +53,25 @@ runs:
     - name: Cleanup before making a tarball
       shell: bash
       run: |
-         echo "::group:: Cleanup git and github related files"
-         rm -rvf .git* .hg* .cvs* .circleci
-         rm -fv .codecov.* .travis.* .appveyor.* azure-pipelines.*
-         rm -fv .gaplint.*
-         rm -fv requirements.txt
+        set -e
+        
+        echo "::group:: Cleanup git and github related files"
+        rm -rvf .git* .hg* .cvs* .circleci
+        rm -fv .codecov.* .travis.* .appveyor.* azure-pipelines.*
+        rm -fv .gaplint.*
+        rm -fv requirements.txt
 
-         echo "::group:: Cleanup macOS metadata"
-         find . -name .DS_Store -exec rm -f {} +
+        echo "::group:: Cleanup macOS metadata"
+        find . -name .DS_Store -exec rm -f {} +
 
-         echo "::group:: Cleanup LaTeX auxiliary files"
-         find doc \( -name '*.aux' -o -name '*.bbl' -o -name '*.blg' -o -name '*.brf' -o -name '*.idx' -o -name '*.ilg' -o -name '*.ind' -o -name '*.log' -o -name '*.out' -o -name '*.pnr' -o -name '*.toc' -o -name '*.tst' \) -exec rm -f {} +
+        echo "::group:: Cleanup LaTeX auxiliary files"
+        find doc \( -name '*.aux' -o -name '*.bbl' -o -name '*.blg' -o -name '*.brf' -o -name '*.idx' -o -name '*.ilg' -o -name '*.ind' -o -name '*.log' -o -name '*.out' -o -name '*.pnr' -o -name '*.toc' -o -name '*.tst' \) -exec rm -f {} +
 
     - name: Create archives 
       shell: bash
       run: |
+        set -e
+        
         # Move necessary files to subfolder
         shopt -s extglob
         mkdir -p "$BASENAME"
@@ -87,12 +95,13 @@ runs:
                 echo "failed creating $FULLNAME"
             fi
         done
-        echo "ARCHIVE_FILES=${ARCHIVE_FORMATS[@]/#/$BASENAME}" >> "$GITHUB_ENV"
         ls -l .
 
     - name: Make copy of manual
       shell: bash
       run: |
+        set -e
+        
         # Copy manual back to main folder
         cp $BASENAME/doc/$DOC $DOC
 
@@ -103,9 +112,11 @@ runs:
         name: "${{ env.PKG }} ${{ env.VERSION }}"
         draft: false
         prerelease: false
-        fail_on_unmatched_files: true
+        fail_on_unmatched_files: false
         tag_name: "${{ env.TAG }}"
         files: |
           package-info.json
           ${{ env.DOC }}
-          ${{ env.ARCHIVE_FILES }}
+          ${{ env.BASENAME }}.tar.gz
+          ${{ env.BASENAME }}.tar.bz2
+          ${{ env.BASENAME }}.tar.zip
