@@ -23,7 +23,7 @@ runs:
         # Get necessary info from package-info.json
         echo "PKG=$(cat package-info.json | jq -r '.PackageName')" >> "$GITHUB_ENV"
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
-        echo "DATE=$(cat package-info.json | jq -r '.Date')" >> $GITHUB_ENV"
+        echo "DATE=$(cat package-info.json | jq -r '.Date')" >> "$GITHUB_ENV"
 
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         
