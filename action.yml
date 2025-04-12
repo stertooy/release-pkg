@@ -97,19 +97,15 @@ runs:
         cp $BASENAME/doc/$DOC $DOC
 
     - name: Make release
-      shell: bash
-      run: |
-        DATA=$(cat <<EOF
-        {
-          "tag_name": "$TAG",
-          "name": "$PKG $VERSION",
-          "body": "Release for $PKG",
-          "draft": false,
-          "prerelease": false
-        }
-        EOF
-        )
-
-        echo "Creating new release $TAG on GitHub"
-        # response=$(curl -s -S -H "Content-Type: application/json" \
-        #  -X POST --data "$DATA" "$API_URL" -H "Authorization: token $TOKEN")
+      uses: softprops/action-gh-release@v2
+      with:
+        body: "Release for ${{ env.PKG }}"
+        name: "${{ env.PKG }} ${{ env.VERSION }}"
+        draft: false
+        pre-release: false
+        fail_on_unmatched_files: true
+        tag_name: "${{ env.TAG }}"
+        files: |
+          package-info.json
+          ${{ env.DOC }}
+          ${{ env.BASENAME }}.{tar.gz,tar.bz2,zip}
