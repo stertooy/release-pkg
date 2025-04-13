@@ -111,8 +111,8 @@ runs:
         PDFFILES=""
         # Copy manual back to main folder
         for DOC in $DOCS ; do
-            cp $BASENAME/$DOC $(basename DOC)
-            PDFFILES=$PDFFILES $(basename DOC)
+            cp $BASENAME/$DOC $(basename $DOC)
+            PDFFILES="$PDFFILES $(basename $DOC)"
         done
         echo "PDFFILES=$PDFFILES" >> "$GITHUB_ENV"
 
