@@ -48,8 +48,7 @@ runs:
             echo "Problem with ArchiveURL"
         fi
 
-        echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile')" >> "$GITHUB_ENV"
-        
+        echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
 
     - name: Cleanup before making a tarball
       shell: bash
