@@ -91,6 +91,7 @@ runs:
             else
                 echo "created $FULLNAME"
                 ASSETS="$ASSETS,$FULLNAME"
+            fi
         done
         echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
 
