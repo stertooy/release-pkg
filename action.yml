@@ -98,7 +98,7 @@ runs:
                 # Should we throw error here?
             else
                 echo "created $FULLNAME"
-                ARCHIVES=$ARCHIVES $FULLNAME
+                ARCHIVES="$ARCHIVES $FULLNAME"
             fi
         done
         echo "ARCHIVES=$ARCHIVES" >> "$GITHUB_ENV"
