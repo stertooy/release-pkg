@@ -49,7 +49,7 @@ runs:
         fi
 
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
-        echo "ASSETS=package-info.json" >> $GITHUB_ENV"
+        echo "ASSETS=package-info.json" >> "$GITHUB_ENV"
 
     - name: Cleanup before making a tarball
       shell: bash
