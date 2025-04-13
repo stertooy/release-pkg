@@ -77,7 +77,6 @@ runs:
         shopt -s extglob
         mkdir -p "$BASENAME"
         mv !($BASENAME|package-info.json) $BASENAME
-        ARCHIVES=""
         
         # Make archives
         for EXT in $ARCHIVE_FORMATS ; do
@@ -99,23 +98,22 @@ runs:
                 # Should we throw error here?
             else
                 echo "created $FULLNAME"
-                ARCHIVES="$ARCHIVES $FULLNAME"
+                ASSETS="$ASSETS,$FULLNAME"
             fi
         done
-        echo "ARCHIVES=$ARCHIVES" >> "$GITHUB_ENV"
+        echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
 
     - name: Make copy of manual
       shell: bash
       run: |
         set -e
 
-        PDFFILES=""
         # Copy manual back to main folder
         for DOC in $DOCS ; do
             cp $BASENAME/$DOC $(basename $DOC)
-            PDFFILES="$PDFFILES $(basename $DOC)"
+            ASSETS="$ASSETS,$(basename $DOC)"
         done
-        echo "PDFFILES=$PDFFILES" >> "$GITHUB_ENV"
+        echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
 
     - name: Make release
       uses: softprops/action-gh-release@v2
@@ -126,4 +124,4 @@ runs:
         prerelease: false
         fail_on_unmatched_files: true
         tag_name: "${{ env.TAG }}"
-        files: "package-info.json,${{ env.BASENAME }}.tar.gz"
+        files: "${{ env.ASSETS }}"
