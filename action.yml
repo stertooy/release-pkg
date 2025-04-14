@@ -118,7 +118,7 @@ runs:
 
     - name: "Make release"
       uses: softprops/action-gh-release@v2
-      if: !${{ inputs.dry-run }}
+      if: ${{ !inputs.dry-run }}
       with:
         body: "Release for ${{ env.PKGNAME }}"
         name: "${{ env.PKGNAME }} ${{ env.VERSION }}"
