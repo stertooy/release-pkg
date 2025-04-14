@@ -28,7 +28,7 @@ runs:
         if [ ! -f "package-info.json" ] ; then
             echo "Could not create package-info.json"
             exit 1
-        else
+        fi
 
     - name: "Read data from package-info.json"
       shell: bash
