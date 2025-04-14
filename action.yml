@@ -4,6 +4,13 @@ description: "Be aware that the only responsibility of this repository is valida
 icon: "archive"
 color: "black"
 
+inputs:
+  dry-run:
+    description: "Set to true to not push the release to GitHub"
+    required: false
+    type: boolean
+    default: false
+
 runs:
   using: "composite"
   steps:
@@ -18,14 +25,16 @@ runs:
       run: |
         set -e
         gap -A -q ${{ github.action_path }}/pkginfo_to_json.g
-        # TODO: Throw error if file was not made
+        if [ ! -f "package-info.json" ] ; then
+            echo "Could not create package-info.json"
+            exit 1
+        else
 
     - name: "Read data from package-info.json"
       shell: bash
       run: |
         set -e
         # Get necessary info from package-info.json
-
         TMP=($(cat package-info.json | jq -r '.ArchiveURL' | tr "/" " "))
         if [ "${#TMP[@]}" -eq 8 ] &&
            [ "${TMP[0]}" = "https:" ] &&
@@ -35,12 +44,11 @@ runs:
             echo "TAG=${TMP[6]}" >> "$GITHUB_ENV"
             echo "BASENAME=${TMP[7]}" >> "$GITHUB_ENV"
         else
-            # TODO: Should probably throw error here
-            echo "Problem with ArchiveURL"
+            echo "ArchiveURL in PackageName does not point to a GitHub release"
+            exit 1
         fi
-        echo "PKG=$(cat package-info.json | jq -r '.PackageName')" >> "$GITHUB_ENV"
+        echo "PKGNAME=$(cat package-info.json | jq -r '.PackageName')" >> "$GITHUB_ENV"
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
-        echo "DATE=$(cat package-info.json | jq -r '.Date')" >> "$GITHUB_ENV"
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
         echo "ASSETS=package-info.json" >> "$GITHUB_ENV"
@@ -80,18 +88,16 @@ runs:
             .tar.bz2) tar cf - "$BASENAME" | bzip2 -9c > "$ARCHIVENAME" ;;
             .zip)     zip -r9 --quiet "$ARCHIVENAME" "$BASENAME" ;;
             *)
-                # TODO: Should probably throw error here
-                echo "unsupported archive format $EXT"
-                continue
+                echo "Unsupported archive format $EXT"
+                exit 1
                 ;;
             esac
             if [ ! -f "$FULLNAME" ] ; then
-                # TODO: Should probably throw error here
-                echo "failed creating $FULLNAME"
-            else
-                echo "created $FULLNAME"
-                ASSETS="$ASSETS,$FULLNAME"
+                echo "Failed creating $FULLNAME"
+                exit 1
             fi
+            echo "Created $FULLNAME"
+            ASSETS="$ASSETS,$FULLNAME"
         done
         echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
 
@@ -100,16 +106,22 @@ runs:
       run: |
         set -e
         for DOC in $DOCS ; do
-            cp $BASENAME/$DOC $(basename $DOC)
-            ASSETS="$ASSETS,$(basename $DOC)"
+            DOCFILE=$(basename $DOC)
+            cp $BASENAME/$DOC $DOCFILE
+            if [ ! -f "$DOCFILE" ] ; then
+                echo "failed creating $FULLNAME"
+                exit 1
+            fi
+            ASSETS="$ASSETS,$DOCFILE"
         done
         echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
 
     - name: "Make release"
       uses: softprops/action-gh-release@v2
+      if: !${{ inputs.dry-run }}
       with:
-        body: "Release for ${{ env.PKG }}"
-        name: "${{ env.PKG }} ${{ env.VERSION }}"
+        body: "Release for ${{ env.PKGNAME }}"
+        name: "${{ env.PKGNAME }} ${{ env.VERSION }}"
         draft: false
         prerelease: false
         fail_on_unmatched_files: true
