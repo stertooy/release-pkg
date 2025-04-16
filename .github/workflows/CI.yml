@@ -34,9 +34,7 @@ jobs:
           GAP_PKGS_TO_BUILD: json
           
       - name: "Build the Example package"
-        uses: gap-actions/build-pkg-docs@v1
-        with:
-          use-latex: true
+        uses: gap-actions/build-pkg@v1
           
       - name: "Build Example's manual"
         uses: gap-actions/build-pkg-docs@v1
