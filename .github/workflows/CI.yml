@@ -1,0 +1,59 @@
+---
+name: CI
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Set to true to prevent actually making a release"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  test:
+    name: "Test the pkg-release action"
+    runs-on: ubuntu-latest
+    steps:
+      # the order of the checkout actions is important because all contents of
+      # the target folder of the checkout action is removed
+      - name: "Clone the Example package"
+        uses: actions/checkout@v4
+        with:
+          repository: gap-packages/example
+
+      - name: "Check out this repository"
+        uses: actions/checkout@v4
+        with:
+          path: this-action/
+
+      - name: "Setup GAP + json package"
+        uses: gap-actions/setup-gap@v2
+        with:
+          GAP_PKGS_TO_BUILD: json
+          
+      - name: "Build the Example package"
+        uses: gap-actions/build-pkg@v1
+          
+      - name: "Build Example's manual"
+        uses: gap-actions/build-pkg-docs@v1
+        with:
+          use-latex: true
+
+      - name: "Make a release for Example"
+        uses: ./this-action/
+        with:
+          dry-run: true
+
+      - name: "Upload the release"
+        uses: actions/upload-artifact@v4
+        with:
+          name: "Release"
+          path: |
+            package-info.json
+            *.tar.gz
+            *.tar.bz2
+            *.zip
+            *.pdf
+          if-no-files-found: error
