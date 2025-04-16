@@ -8,8 +8,7 @@ inputs:
   dry-run:
     description: "Set to true to not push the release to GitHub"
     required: false
-    type: boolean
-    default: false
+    default: "false"
 
 runs:
   using: "composite"
