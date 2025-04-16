@@ -117,10 +117,12 @@ runs:
         echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
     - name: "Test 1"
       if: ${{ inputs.dry-run }}
+      shell: bash
       run: |
         echo "should be true: inputs: ${{ inputs.dry-run }}"
     - name: "Test 2"
       if: ${{ inputs.dry-run }}
+      shell: bash
       run: |
         echo "should be false: inputs: ${{ inputs.dry-run }}"
     - name: "Make release"
