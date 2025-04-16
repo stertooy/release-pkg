@@ -8,7 +8,7 @@ inputs:
   dry-run:
     description: "Set to true to not push the release to GitHub"
     required: false
-    default: "false"
+    default: "herp"
 
 runs:
   using: "composite"
@@ -115,18 +115,18 @@ runs:
         done
         echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
     - name: "Test 1"
-      if: ${{ inputs.dry-run }}
+      if: ${{ inputs.dry-run == 'true' }}
       shell: bash
       run: |
         echo "should be true: inputs: ${{ inputs.dry-run }}"
     - name: "Test 2"
-      if: ${{ inputs.dry-run }}
+      if: ${{ inputs.dry-run == 'false' }}
       shell: bash
       run: |
         echo "should be false: inputs: ${{ inputs.dry-run }}"
     - name: "Make release"
       uses: softprops/action-gh-release@v2
-      if: ${{ !inputs.dry-run }}
+      if: ${{ inputs.dry-run == 'false' }}
       with:
         body: "Release for ${{ env.PKGNAME }}"
         name: "${{ env.PKGNAME }} ${{ env.VERSION }}"
