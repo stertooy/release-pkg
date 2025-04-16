@@ -1,9 +1,8 @@
 ---
 name: Continuous Integration for action
 on:
-  pull_request:
-    branches:
-      - main
+  - pull_request
+  - push
 
 jobs:
   test:
@@ -31,3 +30,5 @@ jobs:
           use-latex: true
 
       - uses: ./this-action/
+        with:
+          dry-run: true
