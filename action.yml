@@ -55,7 +55,6 @@ runs:
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
-        echo "ASSETS=package-info.json" >> "$GITHUB_ENV"
 
     - name: "Cleanup before making archives"
       shell: bash
@@ -103,9 +102,7 @@ runs:
                 exit 1
             fi
             echo "Created $FULLNAME"
-            ASSETS="$ASSETS,$FULLNAME"
         done
-        echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
 
     - name: "Copy manual(s)"
       shell: bash
@@ -120,9 +117,7 @@ runs:
                 echo "Failed at copying $FULLNAME"
                 exit 1
             fi
-            ASSETS="$ASSETS,$DOCFILE"
         done
-        echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
 
     - name: "Make GitHub release"
       uses: softprops/action-gh-release@v2
@@ -132,4 +127,9 @@ runs:
         name: "${{ env.PKGNAME }} ${{ env.VERSION }}"
         fail_on_unmatched_files: true
         tag_name: "${{ env.TAG }}"
-        files: "${{ env.ASSETS }}"
+        files: |
+          package-info.json
+          *.tar.gz
+          *.tar.bz2
+          *.zip
+          *.pdf
