@@ -104,9 +104,6 @@ runs:
             echo "Created $ARCHIVENAME"
             echo -e "ASSETS<<EOF\n$ASSETS\n$ARCHIVENAME\nEOF" >> $GITHUB_ENV
         done
-        echo "ADD ASSETS END TO ENV"
-        echo EOF >> "$GITHUB_ENV"
-        echo "DONE ADDING ASSETS END TO ENV"
 
     - name: "Copy manual(s)"
       shell: bash
