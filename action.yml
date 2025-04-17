@@ -85,9 +85,6 @@ runs:
         mv !($BASENAME|package-info.json) $BASENAME
         
         echo "::group:: Creating archives"
-        echo "ADD ASSETS START TO ENV"
-        echo 'ASSETS+=<<EOF' >> "$GITHUB_ENV"
-        echo "DONE ADDING ASSETS START TO ENV"
         for EXT in $ARCHIVE_FORMATS ; do
             ARCHIVENAME=$BASENAME$EXT
             echo "Creating $ARCHIVENAME ..."
@@ -105,9 +102,7 @@ runs:
                 exit 1
             fi
             echo "Created $ARCHIVENAME"
-            echo "NOW ADDING TO ENV"
-            echo "$ARCHIVENAME" >> "$GITHUB_ENV"
-            echo "DONE ADDING TO ENV"
+            echo -e "ASSETS<<EOF\n$ASSETS\n$ARCHIVENAME\nEOF" >> $GITHUB_ENV
         done
         echo "ADD ASSETS END TO ENV"
         echo EOF >> "$GITHUB_ENV"
@@ -126,11 +121,7 @@ runs:
                 echo "Failed at copying $DOCFILE"
                 exit 1
             fi
-            {
-              echo 'ASSETS+=<<EOF'
-              echo "$DOCFILE"
-              echo EOF
-            } >> "$GITHUB_ENV"
+            echo -e "ASSETS<<EOF\n$ASSETS\n$DOCFILE\nEOF" >> $GITHUB_ENV
         done
 
     - name: "Make GitHub release"
