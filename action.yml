@@ -102,9 +102,9 @@ runs:
                 exit 1
             fi
             echo "Created $ARCHIVENAME"
-            echo -e "ASSETS<<EOF\n$ASSETS\n$ARCHIVENAME\nEOF" >> $GITHUB_ENV
+            ASSETS="$ASSETS\n$ARCHIVENAME"
         done
-
+        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> $GITHUB_ENV
     - name: "Copy manual(s)"
       shell: bash
       run: |
@@ -118,8 +118,9 @@ runs:
                 echo "Failed at copying $DOCFILE"
                 exit 1
             fi
-            echo -e "ASSETS<<EOF\n$ASSETS\n$DOCFILE\nEOF" >> $GITHUB_ENV
+            ASSETS="$ASSETS\n$DOCFILE"
         done
+        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> $GITHUB_ENV
 
     - name: "Make GitHub release"
       uses: softprops/action-gh-release@v2
