@@ -101,7 +101,7 @@ runs:
                 echo "Failed at creating "$ARCHIVENAME""
                 exit 1
             fi
-            echo "Created "$ARCHIVENAME"
+            echo "Created $ARCHIVENAME"
             {
                 echo 'ASSETS+=<<EOF'
                 echo $ARCHIVENAME
