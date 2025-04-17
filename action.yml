@@ -103,9 +103,9 @@ runs:
             fi
             echo "Created $ARCHIVENAME"
             {
-                echo 'ASSETS+=<<EOF'
-                echo $ARCHIVENAME
-                echo EOF
+              echo 'ASSETS+=<<EOF'
+              echo "$ARCHIVENAME"
+              echo EOF
             } >> "$GITHUB_ENV"
         done
 
@@ -119,13 +119,13 @@ runs:
             DOCFILE=$(basename $DOC)
             cp $BASENAME/$DOC $DOCFILE
             if [ ! -f "$DOCFILE" ] ; then
-                echo "Failed at copying $FULLNAME"
+                echo "Failed at copying $DOCFILE"
                 exit 1
             fi
             {
-                echo 'ASSETS+=<<EOF'
-                echo $DOCFILE
-                echo EOF
+              echo 'ASSETS+=<<EOF'
+              echo "$DOCFILE"
+              echo EOF
             } >> "$GITHUB_ENV"
         done
 
