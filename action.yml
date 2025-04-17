@@ -32,7 +32,8 @@ runs:
             echo "Could not create package-info.json"
             exit 1
         fi
-
+        echo "ASSETS=package-info.json" >> "$GITHUB_ENV"
+        
     - name: "Read data from package-info.json"
       shell: bash
       run: |
@@ -55,7 +56,7 @@ runs:
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
-
+        
     - name: "Cleanup before making archives"
       shell: bash
       run: |
@@ -86,7 +87,6 @@ runs:
         echo "::group:: Creating archives"
         for EXT in $ARCHIVE_FORMATS ; do
             ARCHIVENAME=$BASENAME$EXT
-            FULLNAME="$PWD/$ARCHIVENAME"
             echo "Creating $ARCHIVENAME ..."
             case $EXT in
             .tar.gz)  tar cf - "$BASENAME" | gzip -9c > "$ARCHIVENAME" ;;
@@ -97,11 +97,16 @@ runs:
                 exit 1
                 ;;
             esac
-            if [ ! -f "$FULLNAME" ] ; then
-                echo "Failed at creating $FULLNAME"
+            if [ ! -f "$ARCHIVENAME" ] ; then
+                echo "Failed at creating "$ARCHIVENAME""
                 exit 1
             fi
-            echo "Created $FULLNAME"
+            echo "Created "$ARCHIVENAME"
+            {
+                echo 'ASSETS+=<<EOF'
+                echo $ARCHIVENAME
+                echo EOF
+            } >> "$GITHUB_ENV"
         done
 
     - name: "Copy manual(s)"
@@ -117,6 +122,11 @@ runs:
                 echo "Failed at copying $FULLNAME"
                 exit 1
             fi
+            {
+                echo 'ASSETS+=<<EOF'
+                echo $DOCFILE
+                echo EOF
+            } >> "$GITHUB_ENV"
         done
 
     - name: "Make GitHub release"
@@ -127,9 +137,4 @@ runs:
         name: "${{ env.PKGNAME }} ${{ env.VERSION }}"
         fail_on_unmatched_files: true
         tag_name: "${{ env.TAG }}"
-        files: |
-          package-info.json
-          *.tar.gz
-          *.tar.bz2
-          *.zip
-          *.pdf
+        files: ${{ env.ASSETS }}
