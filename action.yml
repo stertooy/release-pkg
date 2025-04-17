@@ -104,7 +104,8 @@ runs:
             echo "Created $ARCHIVENAME"
             ASSETS="$ASSETS\n$ARCHIVENAME"
         done
-        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> $GITHUB_ENV
+        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> "$GITHUB_ENV"
+
     - name: "Copy manual(s)"
       shell: bash
       run: |
@@ -120,7 +121,7 @@ runs:
             fi
             ASSETS="$ASSETS\n$DOCFILE"
         done
-        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> $GITHUB_ENV
+        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> "$GITHUB_ENV"
 
     - name: "Make GitHub release"
       uses: softprops/action-gh-release@v2
