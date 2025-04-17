@@ -37,7 +37,7 @@ jobs:
 
 #### Larger example
 
-The following example makes use of the optional `dry-run` input of the action.
+The following example adds a boolean input to test the Release without actually publishing it on GitHub.
 ```yaml
 name: Release
 
@@ -67,6 +67,11 @@ jobs:
       - uses: gap-actions/release-pkg@v1
         with:
           dry-run: ${{ inputs.dry-run }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "Release"
+          path: ${{ env.ASSETS }}
+          if-no-files-found: error
 ```
 
 ## Contact
