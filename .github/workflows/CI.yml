@@ -47,10 +47,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "Release"
-          path: |
-            package-info.json
-            *.tar.gz
-            *.tar.bz2
-            *.zip
-            *.pdf
+          path: ${{ env.ASSETS }}
           if-no-files-found: error
