@@ -85,7 +85,9 @@ runs:
         mv !($BASENAME|package-info.json) $BASENAME
         
         echo "::group:: Creating archives"
+        echo "ADD ASSETS START TO ENV"
         echo 'ASSETS+=<<EOF' >> "$GITHUB_ENV"
+        echo "DONE ADDING ASSETS START TO ENV"
         for EXT in $ARCHIVE_FORMATS ; do
             ARCHIVENAME=$BASENAME$EXT
             echo "Creating $ARCHIVENAME ..."
@@ -103,9 +105,13 @@ runs:
                 exit 1
             fi
             echo "Created $ARCHIVENAME"
+            echo "NOW ADDING TO ENV"
             echo "$ARCHIVENAME" >> "$GITHUB_ENV"
+            echo "DONE ADDING TO ENV"
         done
+        echo "ADD ASSETS END TO ENV"
         echo EOF >> "$GITHUB_ENV"
+        echo "DONE ADDING ASSETS END TO ENV"
 
     - name: "Copy manual(s)"
       shell: bash
