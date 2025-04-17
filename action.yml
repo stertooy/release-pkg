@@ -32,7 +32,8 @@ runs:
             echo "Could not create package-info.json"
             exit 1
         fi
-
+        echo "ASSETS=package-info.json" >> "$GITHUB_ENV"
+        
     - name: "Read data from package-info.json"
       shell: bash
       run: |
@@ -55,7 +56,7 @@ runs:
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
-
+        
     - name: "Cleanup before making archives"
       shell: bash
       run: |
@@ -86,7 +87,6 @@ runs:
         echo "::group:: Creating archives"
         for EXT in $ARCHIVE_FORMATS ; do
             ARCHIVENAME=$BASENAME$EXT
-            FULLNAME="$PWD/$ARCHIVENAME"
             echo "Creating $ARCHIVENAME ..."
             case $EXT in
             .tar.gz)  tar cf - "$BASENAME" | gzip -9c > "$ARCHIVENAME" ;;
@@ -97,12 +97,14 @@ runs:
                 exit 1
                 ;;
             esac
-            if [ ! -f "$FULLNAME" ] ; then
-                echo "Failed at creating $FULLNAME"
+            if [ ! -f "$ARCHIVENAME" ] ; then
+                echo "Failed at creating "$ARCHIVENAME""
                 exit 1
             fi
-            echo "Created $FULLNAME"
+            echo "Created $ARCHIVENAME"
+            ASSETS="$ASSETS\n$ARCHIVENAME"
         done
+        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> "$GITHUB_ENV"
 
     - name: "Copy manual(s)"
       shell: bash
@@ -114,10 +116,12 @@ runs:
             DOCFILE=$(basename $DOC)
             cp $BASENAME/$DOC $DOCFILE
             if [ ! -f "$DOCFILE" ] ; then
-                echo "Failed at copying $FULLNAME"
+                echo "Failed at copying $DOCFILE"
                 exit 1
             fi
+            ASSETS="$ASSETS\n$DOCFILE"
         done
+        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> "$GITHUB_ENV"
 
     - name: "Make GitHub release"
       uses: softprops/action-gh-release@v2
@@ -127,9 +131,4 @@ runs:
         name: "${{ env.PKGNAME }} ${{ env.VERSION }}"
         fail_on_unmatched_files: true
         tag_name: "${{ env.TAG }}"
-        files: |
-          package-info.json
-          *.tar.gz
-          *.tar.bz2
-          *.zip
-          *.pdf
+        files: ${{ env.ASSETS }}

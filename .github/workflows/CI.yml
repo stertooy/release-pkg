@@ -26,7 +26,7 @@ jobs:
       - name: "Check out this repository"
         uses: actions/checkout@v4
         with:
-          path: this-action/
+          path: .this-action/
 
       - name: "Setup GAP + json package"
         uses: gap-actions/setup-gap@v2
@@ -39,7 +39,7 @@ jobs:
           use-latex: true
 
       - name: "Make a release for Example"
-        uses: ./this-action/
+        uses: ./.this-action/
         with:
           dry-run: true
 
@@ -47,10 +47,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "Release"
-          path: |
-            package-info.json
-            *.tar.gz
-            *.tar.bz2
-            *.zip
-            *.pdf
+          path: ${{ env.ASSETS }}
           if-no-files-found: error
