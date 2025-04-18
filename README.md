@@ -67,11 +67,6 @@ jobs:
       - uses: gap-actions/release-pkg@v1
         with:
           dry-run: ${{ inputs.dry-run }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: "Release"
-          path: ${{ env.ASSETS }}
-          if-no-files-found: error
 ```
 
 ## Contact
