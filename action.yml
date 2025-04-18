@@ -137,6 +137,6 @@ runs:
       uses: actions/upload-artifact@v4
       if: ${{ inputs.dry-run == 'true' }}
       with:
-        name: "Release for ${{ env.PKGNAME }}"
+        name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
         path: ${{ env.ASSETS }}
         if-no-files-found: error
