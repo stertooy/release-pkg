@@ -42,10 +42,3 @@ jobs:
         uses: ./.this-action/
         with:
           dry-run: true
-
-      - name: "Upload the release"
-        uses: actions/upload-artifact@v4
-        with:
-          name: "Release"
-          path: ${{ env.ASSETS }}
-          if-no-files-found: error
