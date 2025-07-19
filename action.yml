@@ -27,8 +27,8 @@ runs:
         set -e
         
         echo "::group:: Creating package-info.json from PackageInfo.g"
-        ls -a ${{ github.action_path }}
-        gap -A -q ${{ github.action_path }}/pkginfo_to_json.g
+        ls -a $GITHUB_ACTION_PATH
+        gap -A -q $GITHUB_ACTION_PATH/pkginfo_to_json.g
         if [ ! -f "package-info.json" ] ; then
             echo "Could not create package-info.json"
             exit 1
