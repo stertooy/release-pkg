@@ -29,7 +29,7 @@ runs:
         echo "::group:: Moving package files to subfolder"
         shopt -s extglob
         mkdir -p release-folder
-        cp -r !($BASENAME) release-folder
+        cp -r !(release-folder) release-folder
 
     - name: "Generate package-info.json"
       shell: bash
@@ -37,7 +37,6 @@ runs:
         set -e
         
         echo "::group:: Creating package-info.json from PackageInfo.g"
-        ls -a $GITHUB_ACTION_PATH
         gap -A -q $GITHUB_ACTION_PATH/pkginfo_to_json.g
         if [ ! -f "package-info.json" ] ; then
             echo "Could not create package-info.json"
