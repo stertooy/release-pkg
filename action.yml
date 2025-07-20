@@ -57,9 +57,20 @@ runs:
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
+
+    - name: "Cleanup before making archives"
+      shell: bash
+      run: |
+        set -e
+
+        echo "::group:: Moving package files to subfolder"
+        shopt -s extglob
+        mkdir -p "$BASENAME"
+        cp !($BASENAME|package-info.json) "$BASENAME"
         
     - name: "Cleanup before making archives"
       shell: bash
+      working-directory: ${{ env.BASENAME }}
       run: |
          set -e
          
@@ -79,11 +90,6 @@ runs:
       shell: bash
       run: |
         set -e
-        
-        echo "::group:: Moving package files to subfolder"
-        shopt -s extglob
-        mkdir -p "$BASENAME"
-        mv !($BASENAME|package-info.json) $BASENAME
         
         echo "::group:: Creating archives"
         for EXT in $ARCHIVE_FORMATS ; do
@@ -114,13 +120,14 @@ runs:
 
         echo "::group:: Copying manuals"
         for DOC in $DOCS ; do
-            DOCFILE=$(basename $DOC)
-            cp $BASENAME/$DOC $DOCFILE
-            if [ ! -f "$DOCFILE" ] ; then
-                echo "Failed at copying $DOCFILE"
-                exit 1
-            fi
-            ASSETS="$ASSETS\n$DOCFILE"
+            #DOCFILE=$(basename $DOC)
+            #cp $BASENAME/$DOC $DOCFILE
+            #if [ ! -f "$DOCFILE" ] ; then
+            #    echo "Failed at copying $DOCFILE"
+            #    exit 1
+            #fi
+            #ASSETS="$ASSETS\n$DOCFILE"
+            ASSETS="$ASSETS\n$DOC"
         done
         echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> "$GITHUB_ENV"
 
