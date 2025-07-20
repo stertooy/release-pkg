@@ -21,16 +21,6 @@ runs:
         echo "::group:: Validating PackageInfo.g"
         gap -A -q -c 'QuitGap(ValidatePackageInfo("PackageInfo.g"));'
 
-    - name: "Make copy in subfolder"
-      shell: bash
-      run: |
-        set -e
-
-        echo "::group:: Moving package files to subfolder"
-        shopt -s extglob
-        mkdir -p release-folder
-        cp -r !(release-folder) release-folder
-
     - name: "Generate package-info.json"
       shell: bash
       run: |
@@ -67,10 +57,19 @@ runs:
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
 
+    - name: "Make copy in subfolder"
+      shell: bash
+      run: |
+        set -e
+
+        echo "::group:: Moving package files to subfolder"
+        shopt -s extglob
+        mkdir -p "$BASENAME"
+        cp -r !($BASENAME|package-info.json) "$BASENAME"
         
     - name: "Cleanup before making archives"
       shell: bash
-      working-directory: release-folder
+      working-directory: ${{ env.BASENAME }}
       run: |
          set -e
          
@@ -96,9 +95,9 @@ runs:
             ARCHIVENAME=$BASENAME$EXT
             echo "Creating $ARCHIVENAME ..."
             case $EXT in
-            .tar.gz)  tar cf - release-folder | gzip -9c > "$ARCHIVENAME" ;;
-            .tar.bz2) tar cf - release-folder | bzip2 -9c > "$ARCHIVENAME" ;;
-            .zip)     zip -r9 --quiet "$ARCHIVENAME" release-folder ;;
+            .tar.gz)  tar cf - "$BASENAME" | gzip -9c > "$ARCHIVENAME" ;;
+            .tar.bz2) tar cf - "$BASENAME" | bzip2 -9c > "$ARCHIVENAME" ;;
+            .zip)     zip -r9 --quiet "$ARCHIVENAME" "$BASENAME" ;;
             *)
                 echo "Unsupported archive format $EXT"
                 exit 1
@@ -120,14 +119,13 @@ runs:
 
         echo "::group:: Copying manuals"
         for DOC in $DOCS ; do
-            #DOCFILE=$(basename $DOC)
-            #cp $BASENAME/$DOC $DOCFILE
-            #if [ ! -f "$DOCFILE" ] ; then
-            #    echo "Failed at copying $DOCFILE"
-            #    exit 1
-            #fi
-            #ASSETS="$ASSETS\n$DOCFILE"
-            ASSETS="$ASSETS\n$DOC"
+            DOCFILE=$(basename $DOC)
+            cp $DOC $DOCFILE
+            if [ ! -f "$DOCFILE" ] ; then
+                echo "Failed at copying $DOCFILE"
+                exit 1
+            fi
+            ASSETS="$ASSETS\n$DOCFILE"
         done
         echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> "$GITHUB_ENV"
 
