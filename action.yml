@@ -1,9 +1,5 @@
----
 name: "Release GAP package"
 description: "Makes a release of the GAP package on GitHub, with archives and manuals as assets"
-icon: "archive"
-color: "black"
-
 inputs:
   dry-run:
     description: "Set to true to not push the release to GitHub"
@@ -16,18 +12,12 @@ runs:
     - name: "Validate PackageInfo.g"
       shell: bash
       run: |
-        set -e
-        
-        echo "::group:: Validating PackageInfo.g"
         gap -A -q -c 'QuitGap(ValidatePackageInfo("PackageInfo.g"));'
 
     - name: "Generate package-info.json"
       shell: bash
       run: |
-        set -e
-        
-        echo "::group:: Creating package-info.json from PackageInfo.g"
-        gap -A -q ${{ github.action_path }}/pkginfo_to_json.g
+        gap -A -q $GITHUB_ACTION_PATH/pkginfo_to_json.g
         if [ ! -f "package-info.json" ] ; then
             echo "Could not create package-info.json"
             exit 1
@@ -37,9 +27,6 @@ runs:
     - name: "Read data from package-info.json"
       shell: bash
       run: |
-        set -e
-        
-        echo "::group:: Extracting necessary information from package-info.json"
         TMP=($(cat package-info.json | jq -r '.ArchiveURL' | tr "/" " "))
         if [ "${#TMP[@]}" -eq 8 ] &&
            [ "${TMP[0]}" = "https:" ] &&
@@ -56,17 +43,24 @@ runs:
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
+
+    - name: "Make copy in subfolder"
+      shell: bash
+      run: |
+        shopt -s extglob
+        mkdir -p "$BASENAME"
+        cp -r !($BASENAME|package-info.json) "$BASENAME"
         
     - name: "Cleanup before making archives"
       shell: bash
-      run: |
-         set -e
-         
+      working-directory: ${{ env.BASENAME }}
+      run: | 
          echo "::group:: Cleanup git and github related files"
          rm -rvf .git* .hg* .cvs* .circleci
          rm -fv .codecov.* .travis.* .appveyor.* azure-pipelines.*
          rm -fv .gaplint.*
          rm -fv requirements.txt
+         rm -fv __DOC_CHECKER__.g output.log
 
          echo "::group:: Cleanup macOS metadata"
          find . -name .DS_Store -exec rm -f {} +
@@ -77,14 +71,6 @@ runs:
     - name: "Create archives"
       shell: bash
       run: |
-        set -e
-        
-        echo "::group:: Moving package files to subfolder"
-        shopt -s extglob
-        mkdir -p "$BASENAME"
-        mv !($BASENAME|package-info.json) $BASENAME
-        
-        echo "::group:: Creating archives"
         for EXT in $ARCHIVE_FORMATS ; do
             ARCHIVENAME=$BASENAME$EXT
             echo "Creating $ARCHIVENAME ..."
@@ -109,12 +95,9 @@ runs:
     - name: "Copy manual(s)"
       shell: bash
       run: |
-        set -e
-
-        echo "::group:: Copying manuals"
         for DOC in $DOCS ; do
             DOCFILE=$(basename $DOC)
-            cp $BASENAME/$DOC $DOCFILE
+            cp $DOC $DOCFILE
             if [ ! -f "$DOCFILE" ] ; then
                 echo "Failed at copying $DOCFILE"
                 exit 1
