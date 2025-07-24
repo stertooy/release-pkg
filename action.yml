@@ -47,8 +47,6 @@ runs:
         echo "PKGDATE=$(cat package-info.json | jq -r '.Date')" >> "$GITHUB_ENV"
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
-        echo "PKGINFO=$(cat package-info.json | jq -r '.PackageInfoURL')" >> "$GITHUB_ENV"
-        echo "README=$(cat package-info.json | jq -r '.README_URL')" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
 
         case "$VERSION" in
@@ -84,7 +82,7 @@ runs:
 
     - name: "Check for release script"
       shell: bash
-      if: ${{ inputs.release-script != "" }}
+      if: ${{ inputs.release-script != '' }}
       run : |
         if [ ! -f "${{ inputs.release-script }}" ] ; then
           echo "could not find release script ${{ inputs.release-script }}"
