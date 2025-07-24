@@ -5,6 +5,10 @@ inputs:
     description: "Set to true to not push the release to GitHub"
     required: false
     default: "false"
+  release-script:
+    description: "Path to custom release script"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -40,11 +44,21 @@ runs:
             exit 1
         fi
         echo "PKGNAME=$(cat package-info.json | jq -r '.PackageName')" >> "$GITHUB_ENV"
+        echo "PKGDATE=$(cat package-info.json | jq -r '.Date')" >> "$GITHUB_ENV"
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
+        echo "PKGINFO=$(cat package-info.json | jq -r '.PackageInfoURL')" >> "$GITHUB_ENV"
+        echo "README=$(cat package-info.json | jq -r '.README_URL')" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
 
-    - name: "Make copy in subfolder"
+        case "$VERSION" in
+          *dev)
+            echo "Must not use 'dev' versions for package releases"
+            exit 1
+            ;;
+        esac
+
+    - name: "Make copy of package in subfolder"
       shell: bash
       run: |
         shopt -s extglob
@@ -68,6 +82,17 @@ runs:
          echo "::group:: Cleanup LaTeX auxiliary files"
          find doc \( -name '*.aux' -o -name '*.bbl' -o -name '*.blg' -o -name '*.brf' -o -name '*.idx' -o -name '*.ilg' -o -name '*.ind' -o -name '*.log' -o -name '*.out' -o -name '*.pnr' -o -name '*.toc' -o -name '*.tst' \) -exec rm -f {} +
 
+    - name: "Check for release script"
+      shell: bash
+      if: ${{ inputs.release-script != "" }}
+      run : |
+        if [ ! -f "${{ inputs.release-script }}" ] ; then
+          echo "could not find release script ${{ inputs.release-script }}"
+          exit 1
+        fi
+        . "${{ inputs.release-script }}"
+        # TODO: check for .release file instead?
+        
     - name: "Create archives"
       shell: bash
       run: |
