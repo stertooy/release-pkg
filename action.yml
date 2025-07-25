@@ -26,10 +26,15 @@ runs:
             echo "Could not create package-info.json"
             exit 1
         fi
+        TMP_DIR=$RUNNER_TEMP/assets
+        echo "TMP_DIR=$TMP_DIR" >> "$GITHUB_ENV"
+        mkdir -p $TMP_DIR
+        mv package-info.json $TMP_DIR/package-info.json
         echo "ASSETS=package-info.json" >> "$GITHUB_ENV"
         
     - name: "Read data from package-info.json"
       shell: bash
+      working-directory: ${{ env.TMP_DIR }}
       run: |
         TMP=($(cat package-info.json | jq -r '.ArchiveURL' | tr "/" " "))
         if [ "${#TMP[@]}" -eq 8 ] &&
@@ -56,16 +61,15 @@ runs:
             ;;
         esac
 
-    - name: "Make copy of package in subfolder"
+    - name: "Make copy of package"
       shell: bash
       run: |
-        shopt -s extglob
-        mkdir -p "$BASENAME"
-        cp -r !($BASENAME|package-info.json) "$BASENAME"
+        mkdir -p "$RUNNER_TEMP/$BASENAME"
+        cp -r * "$RUNNER_TEMP/$BASENAME"
         
     - name: "Cleanup before making archives"
       shell: bash
-      working-directory: ${{ env.BASENAME }}
+      working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run: | 
          echo "::group:: Cleanup git and github related files"
          rm -rvf .git* .hg* .cvs* .circleci
@@ -82,6 +86,7 @@ runs:
 
     - name: "Check for release script"
       shell: bash
+      working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       if: ${{ inputs.release-script != '' }}
       run : |
         if [ ! -f "${{ inputs.release-script }}" ] ; then
@@ -93,20 +98,21 @@ runs:
         
     - name: "Create archives"
       shell: bash
+      working-directory: ${{ runner.temp }}
       run: |
         for EXT in $ARCHIVE_FORMATS ; do
             ARCHIVENAME=$BASENAME$EXT
             echo "Creating $ARCHIVENAME ..."
             case $EXT in
-            .tar.gz)  tar cf - "$BASENAME" | gzip -9c > "$ARCHIVENAME" ;;
-            .tar.bz2) tar cf - "$BASENAME" | bzip2 -9c > "$ARCHIVENAME" ;;
-            .zip)     zip -r9 --quiet "$ARCHIVENAME" "$BASENAME" ;;
+            .tar.gz)  tar cf - "$BASENAME" | gzip -9c > "$TMP_DIR/$ARCHIVENAME" ;;
+            .tar.bz2) tar cf - "$BASENAME" | bzip2 -9c > "$TMP_DIR/$ARCHIVENAME" ;;
+            .zip)     zip -r9 --quiet "$TMP_DIR/$ARCHIVENAME" "$BASENAME" ;;
             *)
                 echo "Unsupported archive format $EXT"
                 exit 1
                 ;;
             esac
-            if [ ! -f "$ARCHIVENAME" ] ; then
+            if [ ! -f "$TMP_DIR/$ARCHIVENAME" ] ; then
                 echo "Failed at creating "$ARCHIVENAME""
                 exit 1
             fi
@@ -120,8 +126,8 @@ runs:
       run: |
         for DOC in $DOCS ; do
             DOCFILE=$(basename $DOC)
-            cp $DOC $DOCFILE
-            if [ ! -f "$DOCFILE" ] ; then
+            cp $DOC $TMP_DIR/$DOCFILE
+            if [ ! -f "$TMP_DIR/$DOCFILE" ] ; then
                 echo "Failed at copying $DOCFILE"
                 exit 1
             fi
@@ -137,12 +143,12 @@ runs:
         name: "${{ env.PKGNAME }} ${{ env.VERSION }}"
         fail_on_unmatched_files: true
         tag_name: "${{ env.TAG }}"
-        files: ${{ env.ASSETS }}
+        files: ${{ env.TMP_DIR }}/*
 
     - name: "Upload the release"
       uses: actions/upload-artifact@v4
       if: ${{ inputs.dry-run == 'true' }}
       with:
         name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
-        path: ${{ env.ASSETS }}
+        path: ${{ env.TMP_DIR }}/*
         if-no-files-found: error
