@@ -18,6 +18,13 @@ runs:
       run: |
         gap -A -q -c 'QuitGap(ValidatePackageInfo("PackageInfo.g"));'
 
+    - name: "Create assets folder"
+      shell: bash
+      run: |
+        ASSETS=$RUNNER_TEMP/assets
+        mkdir -p $ASSETS
+        echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
+
     - name: "Generate package-info.json"
       shell: bash
       run: |
@@ -26,15 +33,11 @@ runs:
             echo "Could not create package-info.json"
             exit 1
         fi
-        TMP_DIR=$RUNNER_TEMP/assets
-        echo "TMP_DIR=$TMP_DIR" >> "$GITHUB_ENV"
-        mkdir -p $TMP_DIR
-        mv package-info.json $TMP_DIR/package-info.json
-        echo "ASSETS=package-info.json" >> "$GITHUB_ENV"
+        mv package-info.json $ASSETS
         
     - name: "Read data from package-info.json"
       shell: bash
-      working-directory: ${{ env.TMP_DIR }}
+      working-directory: ${{ env.ASSETS }}
       run: |
         TMP=($(cat package-info.json | jq -r '.ArchiveURL' | tr "/" " "))
         if [ "${#TMP[@]}" -eq 8 ] &&
@@ -49,7 +52,6 @@ runs:
             exit 1
         fi
         echo "PKGNAME=$(cat package-info.json | jq -r '.PackageName')" >> "$GITHUB_ENV"
-        echo "PKGDATE=$(cat package-info.json | jq -r '.Date')" >> "$GITHUB_ENV"
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" >> "$GITHUB_ENV"
         echo "ARCHIVE_FORMATS=$(cat package-info.json | jq -r '.ArchiveFormats' | tr "," " ")" >> "$GITHUB_ENV"
         echo "DOCS=$(cat package-info.json | jq -r '.PackageDoc[].PDFFile' | tr "\n" " ")" >> "$GITHUB_ENV"
@@ -104,36 +106,27 @@ runs:
             ARCHIVENAME=$BASENAME$EXT
             echo "Creating $ARCHIVENAME ..."
             case $EXT in
-            .tar.gz)  tar cf - "$BASENAME" | gzip -9c > "$TMP_DIR/$ARCHIVENAME" ;;
-            .tar.bz2) tar cf - "$BASENAME" | bzip2 -9c > "$TMP_DIR/$ARCHIVENAME" ;;
-            .zip)     zip -r9 --quiet "$TMP_DIR/$ARCHIVENAME" "$BASENAME" ;;
+            .tar.gz)  tar cf - "$BASENAME" | gzip -9c > "$ASSETS/$ARCHIVENAME" ;;
+            .tar.bz2) tar cf - "$BASENAME" | bzip2 -9c > "$ASSETS/$ARCHIVENAME" ;;
+            .zip)     zip -r9 --quiet "$ASSETS/$ARCHIVENAME" "$BASENAME" ;;
             *)
                 echo "Unsupported archive format $EXT"
                 exit 1
                 ;;
             esac
-            if [ ! -f "$TMP_DIR/$ARCHIVENAME" ] ; then
+            if [ ! -f "$ASSETS/$ARCHIVENAME" ] ; then
                 echo "Failed at creating "$ARCHIVENAME""
                 exit 1
             fi
             echo "Created $ARCHIVENAME"
-            ASSETS="$ASSETS\n$ARCHIVENAME"
         done
-        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> "$GITHUB_ENV"
 
     - name: "Copy manual(s)"
       shell: bash
       run: |
         for DOC in $DOCS ; do
-            DOCFILE=$(basename $DOC)
-            cp $DOC $TMP_DIR/$DOCFILE
-            if [ ! -f "$TMP_DIR/$DOCFILE" ] ; then
-                echo "Failed at copying $DOCFILE"
-                exit 1
-            fi
-            ASSETS="$ASSETS\n$DOCFILE"
+            cp $DOC $ASSETS
         done
-        echo -e "ASSETS<<EOF\n$ASSETS\nEOF" >> "$GITHUB_ENV"
 
     - name: "Make GitHub release"
       uses: softprops/action-gh-release@v2
@@ -143,12 +136,12 @@ runs:
         name: "${{ env.PKGNAME }} ${{ env.VERSION }}"
         fail_on_unmatched_files: true
         tag_name: "${{ env.TAG }}"
-        files: ${{ env.TMP_DIR }}/*
+        files: ${{ env.ASSETS }}/*
 
     - name: "Upload the release"
       uses: actions/upload-artifact@v4
       if: ${{ inputs.dry-run == 'true' }}
       with:
         name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
-        path: ${{ env.TMP_DIR }}/*
+        path: ${{ env.ASSETS }}/*
         if-no-files-found: error
