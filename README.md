@@ -15,32 +15,66 @@ See below for a minimal example to run this action.
 
 #### Minimal example
 ```yaml
-name: CI
+name: Release
 
 # Trigger the workflow on push or pull request
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
-  test:
-    name: Test
+  release:
+    name: "Release the GAP package"
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: gap-actions/setup-gap@v2
-      - uses: gap-actions/build-pkg@v1
+        with:
+          GAP_PKGS_TO_BUILD: json
       - uses: gap-actions/build-pkg-docs@v1
       - uses: gap-actions/release-pkg@v1
 ```
 
+#### Larger example
+
+The following example adds a boolean input to test the Release without actually publishing it on GitHub.
+```yaml
+name: Release
+
+# Trigger the workflow on push or pull request
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Do not upload the release to GitHub"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  release:
+    name: "Release the GAP package"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: gap-actions/setup-gap@v2
+        with:
+          GAP_PKGS_TO_BUILD: json
+      - uses: gap-actions/build-pkg-docs@v1
+        with:
+          use-latex: true
+      - uses: gap-actions/release-pkg@v1
+        with:
+          dry-run: ${{ inputs.dry-run }}
+```
+
 ## Contact
 Please submit bug reports, suggestions for improvements and patches via
-the [issue tracker](https://github.com/gap-actions/build-pkg/issues).
+the [issue tracker](https://github.com/gap-actions/release-pkg/issues).
 
 ## License
-The action `build-pkg` is free software; you can redistribute
+The action `release-pkg` is free software; you can redistribute
 and/or modify it under the terms of the GNU General Public License as published
 by the Free Software Foundation; either version 2 of the License, or (at your
 opinion) any later version. For details, see the file `LICENSE` distributed

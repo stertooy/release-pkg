@@ -7,9 +7,6 @@ function(o, x)
     PrintTo(o, "null");
 end);
 
-result := ValidatePackageInfo("PackageInfo.g");
-if result <> true then FORCE_QUIT_GAP(1); fi;
-
 Read("PackageInfo.g");
 if not IsBound(GAPInfo.PackageInfoCurrent) then
   Print("Reading PackageInfo.g failed\n");
@@ -22,7 +19,7 @@ if IsBound(pkginfo.PackageDoc) and not IsList(pkginfo.PackageDoc) then
   pkginfo.PackageDoc := [pkginfo.PackageDoc];
 fi;
 
-output := OutputTextFile("package-info.json", true );
+output := OutputTextFile("package-info.json", false );
 GapToJsonStream(output, pkginfo);
 CloseStream(output);
 

@@ -1,0 +1,51 @@
+---
+name: CI
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Set to true to prevent actually making a release"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  test:
+    name: "Test the pkg-release action"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: "gap-actions/ActionTestGAPDocPackage"
+          - package: "gap-actions/ActionTestOldDocPackage"
+    
+    steps:
+      # the order of the checkout actions is important because all contents of
+      # the target folder of the checkout action is removed
+      - name: "Clone the package"
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ matrix.package }}
+
+      - name: "Check out this repository"
+        uses: actions/checkout@v5
+        with:
+          path: .this-action/
+
+      - name: "Setup GAP + json package"
+        uses: gap-actions/setup-gap@v2
+        with:
+          GAP_PKGS_TO_BUILD: json
+          
+      - name: "Build manual"
+        uses: gap-actions/build-pkg-docs@v1
+        with:
+          use-latex: true
+
+      - name: "Make a release"
+        uses: ./.this-action/
+        with:
+          dry-run: true
