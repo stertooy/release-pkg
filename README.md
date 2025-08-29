@@ -8,18 +8,37 @@ The action `release-pkg` has to be called by the workflow of a GAP
 package.
 It creates release archives and publishes them in a GitHub release.
 
+It is recommended to create a separate YML file inside the
+`.github/workflows` folder of your package, containing a workflow
+that calls this action. By setting the trigger to `workflow_dispatch`,
+you can then manually create a release from the "Actions" tab of your
+repository.
+
+### Inputs
+
+All of the following inputs are optional.
+
+- `dry-run`:
+  - Set to `true` to create an archive containing the release
+    instead of publishing it on GitHub.
+  - default: `false`
 
 ### Examples
 
-See below for a minimal example to run this action.
+Examples of actual GAP packages using this action are
+[aclib](https://github.com/gap-packages/aclib) and
+[polycyclic](https://github.com/gap-packages/polycyclic).
+
+Below is a minimal example of a workflow using this action.
 
 #### Minimal example
 ```yaml
 name: Release
 
-# Trigger the workflow on push or pull request
 on:
   workflow_dispatch:
+
+permissions: write-all
 
 jobs:
   release:
@@ -37,11 +56,11 @@ jobs:
 
 #### Larger example
 
-The following example adds a boolean input to test the Release without actually publishing it on GitHub.
+The following example adds a boolean input to test the release without actually publishing it on GitHub.
+It also uses the `update-gh-pages` action to update the GitHub Pages of the package after making the release.
 ```yaml
 name: Release
 
-# Trigger the workflow on push or pull request
 on:
   workflow_dispatch:
     inputs:
@@ -50,6 +69,8 @@ on:
         type: boolean
         required: false
         default: false
+
+permissions: write-all
 
 jobs:
   release:
@@ -67,6 +88,8 @@ jobs:
       - uses: gap-actions/release-pkg@v1
         with:
           dry-run: ${{ inputs.dry-run }}
+      - uses: gap-actions/update-gh-pages@v1
+        if: ${{ !inputs.dry-run }}
 ```
 
 ## Contact
