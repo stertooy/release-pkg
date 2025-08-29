@@ -19,6 +19,18 @@ with the same version number, or if the date in `PackageInfo.g` is more
 than 1 day off from the current date. These safety checks can be turned
 off using the `force` input.
 
+### Migration from ReleaseTools
+
+ - It is not necessary to provide a token. This action will automatically
+   use your repository's `GITHUB_TOKEN`.
+ - The documentation will _not_ be compiled during this action. This must
+   be done in a separate step in the release workflow, e.g. by the action
+   [build-pkg-docs](https://github.com/gap-actions/update-gh-pages).
+ - Release scripts will _not_ be executed. This will have to happen
+   in a separate step in the release workflow, before this action.
+ - The GitHub Pages will _not_ be updated. This is now done by a separate
+   action, [update-gh-pages](https://github.com/gap-actions/update-gh-pages).
+
 ### Inputs
 
 All of the following inputs are optional.
@@ -107,18 +119,6 @@ jobs:
       - uses: gap-actions/update-gh-pages@v1
         if: ${{ !inputs.dry-run }}
 ```
-
-## Migration from ReleaseTools
-
- - It is not necessary to provide a token. This action will automatically
-   use your repository's `GITHUB_TOKEN`.
- - The documentation will _not_ be compiled during this action. This must
-   be done in a separate step in the release workflow, e.g. by the action
-   [build-pkg-docs](https://github.com/gap-actions/update-gh-pages).
- - Release scripts will _not_ be executed. This will have to happen
-   in a separate step in the release workflow, before this action.
- - The GitHub Pages will _not_ be updated. This is now done by a separate
-   action, [update-gh-pages](https://github.com/gap-actions/update-gh-pages).
 
 ## Contact
 Please submit bug reports, suggestions for improvements and patches via
