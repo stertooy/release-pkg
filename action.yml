@@ -124,7 +124,6 @@ runs:
     - name: "Run autogen.sh"
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
-      if: ${{ inputs.release-script != '' }}
       run : |
         if [ -x autogen.sh ] ; then
           sudo apt-get install autoconf automake build-essential --yes
