@@ -3,11 +3,11 @@ name: "Release GAP package"
 description: "Makes a release of the GAP package on GitHub, with archives and manuals as assets"
 inputs:
   dry-run:
-    description: "Set to true to not push the release to GitHub"
+    description: "Set to true to create an archive containing the release instead of publishing it on GitHub"
     required: false
     default: "false"
   force:
-    description: "Set to true to allow overwriting an earlier release"
+    description: "Set to true to allow this action to overwrite an existing release, and to make a release with an incorrect date"
     required: false
     default: "false"
 
@@ -83,6 +83,7 @@ runs:
 
     - name: "Verify the date"
       shell: bash
+      if: ${{ inputs.force != 'true' }}
       run: |
         # Convert DD/MM/YYYY to YYYY-MM-DD
         if [[ "$DATE" =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
