@@ -6,10 +6,15 @@ inputs:
     description: "Set to true to not push the release to GitHub"
     required: false
     default: "false"
+  force:
+    description: "Set to true to allow overwriting an earlier release"
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
   steps:
+  
     - name: "Validate PackageInfo.g"
       shell: bash
       run: |
@@ -59,6 +64,21 @@ runs:
             exit 1
             ;;
         esac
+
+    - name: "Check if tag exists"
+      shell: bash
+      run: |
+        GIT_RELS_JSON=$(wget --header="Authorization: Bearer ${{ github.token }}" -qO- "https://api.github.com/repos/${{ github.repository }}/releases")
+        GIT_RELS=$(echo "$GIT_RELS_JSON" | jq -r '.[].tag_name' | sort -V)
+        if echo "$GIT_RELS" | grep -q "^${TAG}$"; then
+          echo "Tag $TAG is already in use for a release."
+          if [[ "${{ inputs.force }}" == "true" ]] ; then
+            echo "Forcing update of existing release."
+          else
+            echo "If you want to overwrite this existing release, re-run this action with the 'force' input set to 'true'."
+            exit 1
+          fi
+        fi
 
     # We make a copy of the current directory to build the release from, because
     # the next step will remove files/folders that may be necessary for subsequent

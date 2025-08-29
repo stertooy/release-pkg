@@ -22,6 +22,10 @@ All of the following inputs are optional.
   - Set to `true` to create an archive containing the release
     instead of publishing it on GitHub.
   - default: `false`
+- `force`:
+  - Set to `true` to allow this action to overwrite an existing
+    release.
+  - default: `false`
 
 ### Examples
 
@@ -56,7 +60,8 @@ jobs:
 
 #### Larger example
 
-The following example adds a boolean input to test the release without actually publishing it on GitHub.
+The following example adds a boolean input `dry-run` to test the release without actually publishing it on GitHub,
+and a second boolean input `force` to allow the workflow to overwrite an existing release.
 It also uses the `update-gh-pages` action to update the GitHub Pages of the package after making the release.
 ```yaml
 name: Release
@@ -66,6 +71,11 @@ on:
     inputs:
       dry-run:
         description: "Do not upload the release to GitHub"
+        type: boolean
+        required: false
+        default: false
+      force:
+        description: "Set to true to allow overwriting an existing release"
         type: boolean
         required: false
         default: false
@@ -88,6 +98,7 @@ jobs:
       - uses: gap-actions/release-pkg@v1
         with:
           dry-run: ${{ inputs.dry-run }}
+          force: ${{ inputs.force }}
       - uses: gap-actions/update-gh-pages@v1
         if: ${{ !inputs.dry-run }}
 ```
