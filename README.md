@@ -23,12 +23,12 @@ off using the `force` input.
 
  - It is not necessary to provide a token. This action will automatically
    use your repository's `GITHUB_TOKEN`.
- - The documentation will _not_ be compiled during this action. This must
+ - The documentation **will not** be compiled during this action. This must
    be done in a separate step in the release workflow, e.g. by the action
    [build-pkg-docs](https://github.com/gap-actions/update-gh-pages).
- - Release scripts will _not_ be executed. This will have to happen
+ - Release scripts **will not** be executed. This will have to happen
    in a separate step in the release workflow, before this action.
- - The GitHub Pages will _not_ be updated. This is now done by a separate
+ - The GitHub Pages **will not** be updated. This is now done by a separate
    action, [update-gh-pages](https://github.com/gap-actions/update-gh-pages).
 
 ### Inputs
