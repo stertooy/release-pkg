@@ -19,6 +19,22 @@ with the same version number, or if the date in `PackageInfo.g` is more
 than 1 day off from the current date. These safety checks can be turned
 off using the `force` input.
 
+### Migration from ReleaseTools
+
+ - It is not necessary to provide a token. This action will automatically
+   use your repository's `GITHUB_TOKEN`.
+ - The documentation **will not** be compiled during this action. This must
+   be done in a separate step in the release workflow, e.g. by the action
+   [build-pkg-docs](https://github.com/gap-actions/update-gh-pages), as
+   shown in the examples later in this document.
+ - If your package has a `.release` script, this **will not** be executed.
+   Instead, add a separate step in your release workflow, before this action.
+   This step can either invoke your `.release` script, or you can copy the
+   content of that script into the step and delete the script afterwards.
+ - The GitHub Pages **will not** be updated. This is now done by a separate
+   action, [update-gh-pages](https://github.com/gap-actions/update-gh-pages).
+   This is also demonstrated in the examples below.
+
 ### Inputs
 
 All of the following inputs are optional.
