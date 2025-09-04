@@ -83,4 +83,4 @@ jobs:
       - name: "Clone the package"
         shell: bash
         working-directory: filename-dir
-        run: check_filenames.sh
+        run: ../check_filenames.sh
