@@ -93,11 +93,23 @@ jobs:
         shell: bash
         working-directory: filename-dir-1
         continue-on-error: true
-        run: ../check_filenames.sh
+        run: ../check_filenames.sh > $RUNNER_TEMP/filenames_run.txt
 
-      - if: ${{ steps.bad-names.outcome == 'success' }}
+      - name: "Verify"
         shell: bash
-        run: exit 1
+        working-directory: filename-dir-1
+        run: |
+          cat <<EOF > $RUNNER_TEMP/filenames_chk.txt
+          Checking for Windows-incompatible names
+            Name ends with space or period: period.
+            Reserved Windows name: COM².tar.gz
+            Name ends with space or period: space 
+            Duplicate filename: DOC and doc
+            Reserved Windows name: AUX
+            Illegal character in name: \Users\GillBates
+            Illegal character in name: :q
+          EOF
+          diff $RUNNER_TEMP/filenames_run.txt $RUNNER_TEMP/filenames_chk.txt
 
       - name: "Test good filenames"
         shell: bash
