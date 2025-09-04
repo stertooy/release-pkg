@@ -80,5 +80,5 @@ jobs:
             Duplicate filename: DOC and doc
             Reserved Windows name: AUX
             Illegal character in name: \Users\GillBates
-            Illegal character in name: :qBETTER
+            Illegal character in name: :q
           EOF
