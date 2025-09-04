@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  test-action:
     name: "Test the pkg-release action"
     runs-on: ubuntu-latest
     strategy:
@@ -53,3 +53,53 @@ jobs:
         with:
           dry-run: true
           force: ${{ matrix.force }}
+
+  test-scripts:
+    name: "Test the scripts used by this action"
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: "Check out this repository"
+        uses: actions/checkout@v5
+
+      - name: "Setup for testing check_filenames.sh"
+        shell: bash
+        run: |
+          mkdir -p filename-dir-1
+          cd filename-dir-1
+          mkdir -p doc
+          echo "0" > :q
+          echo "1" > "\Users\GillBates"
+          echo "2" > AUX
+          echo "3" > COM².tar.gz
+          echo "4" > "period."
+          echo "5" > "space "
+          echo "6" > DOC
+          cd ../
+          mkdir -p filename-dir-2
+          cd filename-dir-2
+          mkdir -p doc
+          echo "0" > PackageInfo.g
+          echo "1" > doc/manual.pdf
+          echo "2" > manual.pdf
+          echo "3" > README
+          echo "4" > readme.txt
+          echo "5" > auxiliary
+          echo "6" > .gaplint.yml
+
+      - name: "Test bad filenames"
+        id: bad-names
+        shell: bash
+        working-directory: filename-dir-1
+        continue-on-error: true
+        run: ../check_filenames.sh
+
+      - if: ${{ steps.bad-names.outcome == 'success' }}
+        shell: bash
+        run: exit 1
+
+      - name: "Test good filenames"
+        shell: bash
+        working-directory: filename-dir-2
+        run: ../check_filenames.sh
