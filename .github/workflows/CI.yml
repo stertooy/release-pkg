@@ -63,7 +63,7 @@ jobs:
       - name: "Check out this repository"
         uses: actions/checkout@v5
 
-      - name: "Setup for testing check_filenames.sh"
+      - name: "Test check_filenames.sh"
         shell: bash
         run: |
           mkdir -p filename-dir
