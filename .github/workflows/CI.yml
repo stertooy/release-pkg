@@ -95,7 +95,7 @@ jobs:
         continue-on-error: true
         run: ../check_filenames.sh
 
-      - if: ${{ steps.bad-names.conclusion == 'success' }}
+      - if: ${{ steps.bad-names.outcome == 'success' }}
         shell: bash
         run: exit 1
 
