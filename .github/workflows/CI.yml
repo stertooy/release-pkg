@@ -1,9 +1,11 @@
----
 name: CI
+
+# Trigger the workflow on push to main, or on pull request
 on:
-  pull_request:
   push:
-  workflow_dispatch:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   test:
