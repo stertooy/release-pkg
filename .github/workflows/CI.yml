@@ -66,21 +66,40 @@ jobs:
       - name: "Setup for testing check_filenames.sh"
         shell: bash
         run: |
-          mkdir -p filename-dir
-          cd filename-dir
+          mkdir -p filename-dir-1
+          cd filename-dir-1
           mkdir -p doc
           echo "0" > :q
-          echo "1" > C:\Users\GillBates
+          echo "1" > "\Users\GillBates"
           echo "2" > AUX
           echo "3" > COM².tar.gz
           echo "4" > "period."
           echo "5" > "space "
-          echo "6" > readme.txt
-          echo "7" > README.TXT
-          echo "8" > DOC
-          echo "9" > doc/manual.pdf
+          echo "6" > DOC
+          cd ../
+          mkdir -p filename-dir-2
+          cd filename-dir-2
+          mkdir -p doc
+          echo "0" > PackageInfo.g
+          echo "1" > doc/manual.pdf
+          echo "2" > manual.pdf
+          echo "3" > README
+          echo "4" > readme.txt
+          echo "5" > auxiliary
+          echo "6" > .gaplint.yml
 
-      - name: "Clone the package"
+      - name: "Test bad filenames"
+        id: bad-names
         shell: bash
-        working-directory: filename-dir
+        working-directory: filename-dir-1
+        continue-on-error: true
+        run: ../check_filenames.sh
+
+      - if: ${{ steps.bad-names.conclusion == 'success' }}
+        shell: bash
+        run: exit 1
+
+      - name: "Test good filenames"
+        shell: bash
+        working-directory: filename-dir-2
         run: ../check_filenames.sh
