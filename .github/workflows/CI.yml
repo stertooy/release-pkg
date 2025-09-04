@@ -101,7 +101,7 @@ jobs:
             Duplicate filename: DOC and doc
             Reserved Windows name: AUX
             Illegal character in name: \Users\GillBates
-            Illegal character in name: :qTEMPSTUFFTOTEST
+            Illegal character in name: :q
           EOF
           diff $RUNNER_TEMP/filenames_run.txt $RUNNER_TEMP/filenames_chk.txt
 
