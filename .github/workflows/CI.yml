@@ -89,10 +89,8 @@ jobs:
           echo "6" > .gaplint.yml
 
       - name: "Test bad filenames"
-        id: bad-names
         shell: bash
         working-directory: filename-dir-1
-        continue-on-error: true
         run: |
           ../check_filenames.sh > $RUNNER_TEMP/filenames_run.txt || true # suppress error here
           cat <<EOF > $RUNNER_TEMP/filenames_chk.txt
