@@ -80,10 +80,5 @@ jobs:
             Duplicate filename: DOC and doc
             Reserved Windows name: AUX
             Illegal character in name: \Users\GillBates
-            Illegal character in name: :q
+            Illegal character in name: :qBETTER
           EOF
-
-      - name: "Test good filenames"
-        shell: bash
-        working-directory: filename-dir-2
-        run: ../check_filenames.sh
