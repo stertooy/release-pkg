@@ -72,7 +72,7 @@ jobs:
           touch :q \\Users\\GillBates AUX COM².tar.gz period. space\  DOC \
             PackageInfo.g doc/manual.pdf manual.pdf README readme.txt auxiliary .gaplint.yml
           ../check_filenames.sh > $RUNNER_TEMP/filenames_run.txt || true # suppress expected error here
-          diff $RUNNER_TEMP/filenames_run.txt <<EOF
+          diff $RUNNER_TEMP/filenames_run.txt - <<EOF
           Checking for Windows-incompatible names
             Name ends with space or period: period.
             Reserved Windows name: COM².tar.gz
