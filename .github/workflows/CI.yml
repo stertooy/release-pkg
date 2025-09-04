@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  test-action:
     name: "Test the pkg-release action"
     runs-on: ubuntu-latest
     strategy:
@@ -53,3 +53,34 @@ jobs:
         with:
           dry-run: true
           force: ${{ matrix.force }}
+
+  test-scripts:
+    name: "Test the scripts used by this action"
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: "Check out this repository"
+        uses: actions/checkout@v5
+
+      - name: "Setup for testing check_filenames.sh"
+        shell: bash
+        run: |
+          mkdir -p filename-dir
+          cd filename-dir
+          mkdir -p doc
+          echo "0" > :q
+          echo "1" > C:\Users\GillBates
+          echo "2" > AUX
+          echo "3" > COM².tar.gz
+          echo "4" > "period."
+          echo "5" > "space "
+          echo "6" > readme.txt
+          echo "7" > README.TXT
+          echo "8" > DOC
+          echo "9" > doc/manual.pdf
+
+      - name: "Clone the package"
+        shell: bash
+        working-directory: filename-dir
+        run: check_filenames.sh
