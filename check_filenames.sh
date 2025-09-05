@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 error_found=false
 
 reserved_names=(
