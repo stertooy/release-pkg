@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 error_found=false
 
 reserved_names=(
