@@ -71,6 +71,12 @@ jobs:
       - name: "Shellcheck"
         uses: ludeeus/action-shellcheck@2.0.0
 
+      - name: "Shellcheck, again"
+        shell: bash
+        run: |
+          sudo apt-get install shellcheck
+          shellcheck check_filenames.sh
+
       - name: "Test check_filenames.sh"
         shell: bash
         run: |
