@@ -84,10 +84,10 @@ jobs:
           diff $RUNNER_TEMP/filenames_run.txt - <<EOF
           Checking for Windows-incompatible names
             Illegal character in name: :q
+            Reserved Windows name: AUX
+            Reserved Windows name: COM².tar.gz
             Illegal character in name: \Users\GillBates
             Duplicate filename: DOC and doc
             Name ends with space or period: period.
-            Reserved Windows name: COM².tar.gz
             Name ends with space or period: space 
-            Reserved Windows name: AUX
           EOF
