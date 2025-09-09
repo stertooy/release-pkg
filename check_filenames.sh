@@ -17,8 +17,7 @@ forbidden_chars='[<>:"/\\|?*]'
 
 echo "Checking for Windows-incompatible names"
 
-raw_paths=$(find . -printf '%P\0' | sort -z)
-mapfile -d '' all_paths < <${raw_paths}
+mapfile -d '' all_paths < <(find . -printf '%P\0' | sort -z || true)
 declare -A seen
 
 for p in "${all_paths[@]}"; do
