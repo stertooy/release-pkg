@@ -34,7 +34,7 @@ for p in "${all_paths[@]}"; do
   fi
   
   for reserved in "${reserved_names[@]}"; do
-    if [[ "${base}_no_ext" == "$reserved" ]]; then
+    if [[ "${base}_no_ext" == "${reserved}" ]]; then
       echo "  Reserved Windows name: ${p}"
       error_found=true
     fi
