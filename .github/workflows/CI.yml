@@ -83,11 +83,11 @@ jobs:
           ../check_filenames.sh > $RUNNER_TEMP/filenames_run.txt || true # suppress expected error here
           diff $RUNNER_TEMP/filenames_run.txt - <<EOF
           Checking for Windows-incompatible names
+            Illegal character in name: :q
+            Illegal character in name: \Users\GillBates
+            Duplicate filename: DOC and doc
             Name ends with space or period: period.
             Reserved Windows name: COM².tar.gz
             Name ends with space or period: space 
-            Duplicate filename: DOC and doc
             Reserved Windows name: AUX
-            Illegal character in name: \Users\GillBates
-            Illegal character in name: :q
           EOF
