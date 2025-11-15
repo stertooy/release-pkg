@@ -23,6 +23,14 @@ runs:
       shell: bash
       run: |
         gap -A -q -c 'QuitGap(ValidatePackageInfo("PackageInfo.g"));'
+        
+    - name: "Check documentation for absolute paths"
+      shell: bash
+      run: |
+        if fgrep -q -r '<a href="/' */*.htm*; then
+          echo "::error::Manual contains absolute paths"
+          exit 1
+        fi
 
     - name: "Create assets folder"
       shell: bash
