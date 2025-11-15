@@ -83,7 +83,7 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ steps.check-filenames.outcome }}" != 'failre' ]]; then
-            echo "check_filenames step has unexpected outcome '${{ steps.check-filenames.outcome }}'"
+            echo "::error::check_filenames step has unexpected outcome '${{ steps.check-filenames.outcome }}'"
             exit 1
           fi
           diff $RUNNER_TEMP/filenames_run.txt - <<EOF
