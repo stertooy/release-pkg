@@ -67,15 +67,25 @@ jobs:
         shell: bash
         run: shellcheck -o all *.sh
 
-      - name: "Test check_filenames.sh"
+      - name: "Run check_filenames.sh"
         shell: bash
+        continue-on-error: true
+        id: check-filenames
         run: |
           mkdir -p filename-dir
           cd filename-dir
           mkdir -p doc
           touch :q \\Users\\GillBates AUX COM².tar.gz period. space\  DOC \
             PackageInfo.g doc/manual.pdf manual.pdf README readme.txt auxiliary .gaplint.yml
-          ../check_filenames.sh > $RUNNER_TEMP/filenames_run.txt || true # suppress expected error here
+          ../check_filenames.sh > $RUNNER_TEMP/filenames_run.txt
+        
+      - name: "Test result of check_filenames.sh"
+        shell: bash
+        run: |
+          if [[ "${{ steps.check-filenames.outcome }}" != 'failre' ]]; then
+            echo "check_filenames step has unexpected outcome '${{ steps.check-filenames.outcome }}'"
+            exit 1
+          fi
           diff $RUNNER_TEMP/filenames_run.txt - <<EOF
           Checking for Windows-incompatible names
             Illegal character in name: :q
@@ -86,3 +96,4 @@ jobs:
             Name ends with space or period: period.
             Name ends with space or period: space 
           EOF
+        
