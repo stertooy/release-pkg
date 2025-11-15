@@ -38,7 +38,8 @@ jobs:
       - name: "derp"
         shell: bash
         run: |
-          echo "<div><a href=\"/home/runner/gap/doc/chap0_mj.html\" >linky link</a></div>" > derp.html
+          mkdir derp
+          echo "<div><a href=\"/home/runner/gap/doc/chap0_mj.html\" >linky link</a></div>" > derp/derp.html
           
       - name: "Check out this repository"
         uses: actions/checkout@v5
