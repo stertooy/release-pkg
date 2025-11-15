@@ -54,5 +54,6 @@ for p in "${all_paths[@]}"; do
 done
 
 if ${error_found}; then
+  echo "::error::Found problematic filenames"
   exit 1
 fi
