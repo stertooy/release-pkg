@@ -165,7 +165,11 @@ runs:
     - name: "Reject bad filenames"
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
-      run: $GITHUB_ACTION_PATH/check_filenames.sh
+      run: |
+        if [[ $($GITHUB_ACTION_PATH/check_filenames.sh) || $? -ne 0 ]]; then
+          echo "::error::Found problematic filenames"
+          exit 1
+        fi
 
     - name: "Create archives"
       shell: bash
