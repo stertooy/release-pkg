@@ -82,7 +82,7 @@ jobs:
       - name: "Test result of check_filenames.sh"
         shell: bash
         run: |
-          if [[ "${{ steps.check-filenames.outcome }}" != 'failre' ]]; then
+          if [[ "${{ steps.check-filenames.outcome }}" != 'failure' ]]; then
             echo "::error::check_filenames step has unexpected outcome '${{ steps.check-filenames.outcome }}'"
             exit 1
           fi
