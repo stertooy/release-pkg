@@ -4,6 +4,6 @@ set -o pipefail
 
 shopt -s globstar
 
-if grep -rlE '<a href="(file:/)?/' **/*.htm* ; then
+if grep -rlE '<a href="(file:/)?/' ./**/*.htm* ; then
   exit 1
 fi
