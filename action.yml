@@ -166,7 +166,7 @@ runs:
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run: |
-        $($GITHUB_ACTION_PATH/check_filenames.sh || {
+        $GITHUB_ACTION_PATH/check_filenames.sh || {
           echo "::error::Found problematic filenames"
           exit 1
         }
