@@ -98,7 +98,7 @@ jobs:
           echo "<a href=\"file:///home/runner/gap/pkg/awesomepackage/doc/chap66_mj.html#ABC123\">Link</a>" > doc/chap2_mj.html
           echo "<a href=\"../../../pkg/awesomepackage/doc/chap66_mj.html#ABC123\">Link</a>" > doc/chap3_mj.html
           ../check_absolute_paths.sh > $RUNNER_TEMP/absolute_paths_run.txt || true # suppress expected error here
-          diff $RUNNER_TEMP/absolute_paths_run.txt - <<EOF
+          diff <(sort $RUNNER_TEMP/absolute_paths_run.txt) - <<EOF
           ./doc/chap1_mj.html
           ./doc/chap2_mj.html
           EOF
