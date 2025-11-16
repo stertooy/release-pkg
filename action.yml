@@ -60,7 +60,7 @@ runs:
       run: |
         gap -A -q $GITHUB_ACTION_PATH/pkginfo_to_json.g
         if [ ! -f "package-info.json" ] ; then
-            echo "Could not create package-info.json"
+            echo "::error::Could not create package-info.json"
             exit 1
         fi
         mv package-info.json $ASSETS
@@ -78,7 +78,7 @@ runs:
             echo "TAG=${TMP[6]}" | tee -a "$GITHUB_ENV"
             echo "BASENAME=${TMP[7]}" | tee -a "$GITHUB_ENV"
         else
-            echo "ArchiveURL in PackageInfo.g does not point to a GitHub release"
+            echo "::error::ArchiveURL in PackageInfo.g does not point to a GitHub release"
             exit 1
         fi
         echo "PKGNAME=$(cat package-info.json | jq -r '.PackageName')" | tee -a "$GITHUB_ENV"
@@ -89,7 +89,7 @@ runs:
 
         case "$VERSION" in
           *dev)
-            echo "Must not use 'dev' versions for package releases"
+            echo "::error::Must not use 'dev' versions for package releases"
             exit 1
             ;;
         esac
@@ -102,9 +102,9 @@ runs:
         if echo "$GIT_RELS" | grep -q "^${TAG}$"; then
           echo "Tag $TAG is already in use for a release."
           if [[ "${{ inputs.force }}" == "true" ]] ; then
-            echo "Forcing update of existing release."
+            echo "::warning::Forcing update of existing release."
           else
-            echo "If you want to overwrite this existing release, re-run this action with the 'force' input set to 'true'."
+            echo "::error::If you want to overwrite this existing release, re-run this action with the 'force' input set to 'true'."
             exit 1
           fi
         fi
@@ -123,7 +123,7 @@ runs:
         TOMORROW=$(date -d "tomorrow" +%Y-%m-%d)
 
         if [[ "$DATE" != "$TODAY" && "$DATE" != "$YESTERDAY" && "$DATE" != "$TOMORROW" ]]; then
-          echo "Date found in PackageInfo.g ($DATE) does not match current date ($TODAY) up to ±1 day."
+          echo "::error::Date found in PackageInfo.g ($DATE) does not match current date ($TODAY) up to ±1 day."
           exit 1
         fi
 
@@ -140,14 +140,14 @@ runs:
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run: |
-         echo "::group:: Cleanup git and github related files"
+         echo "::group::Cleanup git and github related files"
          rm -rvf .git* .hg* .cvs* .circleci
-         echo "::group:: Cleanup codecov, travis, azure-pipelines"
+         echo "::group::Cleanup codecov, travis, azure-pipelines"
          rm -fv .codecov.* .travis.* .appveyor.* azure-pipelines.*
          rm -fv .gaplint.*
          rm -fv requirements.txt
 
-         echo "::group:: Cleanup macOS metadata"
+         echo "::group::Cleanup macOS metadata"
          find . -name .DS_Store -exec rm -f {} +
 
     - name: "Run autogen.sh"
@@ -166,7 +166,7 @@ runs:
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run : |
         if find . -type l | grep -q .; then
-          echo "Symlinks detected"
+          echo "::error::Symlinks detected"
           exit 1
         fi
 
@@ -187,12 +187,12 @@ runs:
             .tar.bz2) tar cf - "$BASENAME" | bzip2 -9c > "$ASSETS/$ARCHIVENAME" ;;
             .zip)     zip -r9 --quiet "$ASSETS/$ARCHIVENAME" "$BASENAME" ;;
             *)
-                echo "Unsupported archive format $EXT"
+                echo "::error::Unsupported archive format $EXT"
                 exit 1
                 ;;
             esac
             if [ ! -f "$ASSETS/$ARCHIVENAME" ] ; then
-                echo "Failed at creating "$ARCHIVENAME""
+                echo "::error::Failed at creating "$ARCHIVENAME""
                 exit 1
             fi
             echo "Created $ARCHIVENAME"
