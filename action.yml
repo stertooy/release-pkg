@@ -27,8 +27,8 @@ runs:
     - name: "Check documentation for absolute paths"
       shell: bash
       run: |
-        if fgrep -q -r '<a href="/' */*.htm*; then
-          echo "::error::Manual contains absolute paths"
+        if [[ $($GITHUB_ACTION_PATH/check_absolute_paths.sh) || $? -ne 0 ]]; then
+          echo "::error::Found absolute paths in HTML file(s)"
           exit 1
         fi
 
