@@ -27,10 +27,10 @@ runs:
     - name: "Check documentation for absolute paths"
       shell: bash
       run: |
-        if [[ $($GITHUB_ACTION_PATH/check_absolute_paths.sh) || $? -ne 0 ]]; then
+        $GITHUB_ACTION_PATH/check_absolute_paths.sh && {
           echo "::error::Found absolute paths in HTML file(s)"
           exit 1
-        fi
+        }
 
     - name: "Create assets folder"
       shell: bash
