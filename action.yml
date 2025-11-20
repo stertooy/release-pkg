@@ -170,10 +170,10 @@ runs:
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run : |
-        if find . -type l | grep -q .; then
+        $GITHUB_ACTION_PATH/check_symlinks.sh || {
           echo "::error::Symlinks detected"
           exit 1
-        fi
+        }
 
     - name: "Reject bad filenames"
       shell: bash
