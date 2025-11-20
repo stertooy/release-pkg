@@ -125,6 +125,7 @@ jobs:
           ../check_symlinks.sh > $RUNNER_TEMP/symlinks_run.txt # should not give error
           ln -s actual.file sym.link
           ../check_symlinks.sh > $RUNNER_TEMP/symlinks_run.txt || true # suppress expected error here
+          cat $RUNNER_TEMP/symlinks_run.txt
           diff <(sort $RUNNER_TEMP/symlinks_run.txt) - <<EOF
           ./sym.link
           EOF
