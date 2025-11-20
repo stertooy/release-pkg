@@ -10,7 +10,7 @@ InstallMethod(_GapToJsonStreamInternal, [IsOutputStream, IsObject],
 
 Read("PackageInfo.g");
 if not IsBound(GAPInfo.PackageInfoCurrent) then
-  Exec("echo ::error::Reading PackageInfo.g failed");
+  Exec("echo \"::error::Reading PackageInfo.g failed\"");
   ForceQuitGap(2);
 fi;
 pkginfo := GAPInfo.PackageInfoCurrent;
