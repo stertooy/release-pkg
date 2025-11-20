@@ -63,17 +63,6 @@ jobs:
       - name: "Check out this repository"
         uses: actions/checkout@v5
 
-      - name: "herp"
-        shell: bash
-        run: |
-          ls -a
-
-      - name: "derp"
-        shell: bash
-        working-directory: scripts
-        run: |
-          ls -a
-
       - name: "Shellcheck"
         shell: bash
         working-directory: scripts
@@ -125,7 +114,6 @@ jobs:
           ../check_symlinks.sh > $RUNNER_TEMP/symlinks_run.txt # should not give error
           ln -s actual.file sym.link
           ../check_symlinks.sh > $RUNNER_TEMP/symlinks_run.txt || true # suppress expected error here
-          cat $RUNNER_TEMP/symlinks_run.txt
           diff <(sort $RUNNER_TEMP/symlinks_run.txt) - <<EOF
           ./sym.link
           EOF
