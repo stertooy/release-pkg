@@ -18,6 +18,20 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Validate input"
+      shell: bash
+      run: |
+        validate_boolean() {
+          local input=$1
+          local option_name=$2
+          if ! [[ "$input" =~ ^(true|false)$ ]]; then
+            echo "::error::Invalid value for option $option_name. Expected 'true' or 'false', but found '$input'"
+            exit 1;
+          fi
+        }
+
+        validate_boolean "${{ inputs.dry-run }}" dry-run
+        validate_boolean "${{ inputs.force }}" force
 
     - name: "Validate PackageInfo.g"
       shell: bash
@@ -27,7 +41,7 @@ runs:
     - name: "Check documentation for absolute paths"
       shell: bash
       run: |
-        $GITHUB_ACTION_PATH/check_absolute_paths.sh || {
+        $GITHUB_ACTION_PATH/scripts/check_absolute_paths.sh || {
           echo "::error::Found absolute paths in HTML file(s)"
           exit 1
         }
@@ -58,10 +72,10 @@ runs:
     - name: "Generate package-info.json"
       shell: bash
       run: |
-        gap -A -q $GITHUB_ACTION_PATH/pkginfo_to_json.g
+        gap -A -q $GITHUB_ACTION_PATH/scripts/pkginfo_to_json.g
         if [ ! -f "package-info.json" ] ; then
-            echo "::error::Could not create package-info.json"
-            exit 1
+          echo "::error::Could not create package-info.json"
+          exit 1
         fi
         mv package-info.json $ASSETS
 
@@ -75,11 +89,11 @@ runs:
            [ "${TMP[1]}" = "github.com" ] &&
            [ "${TMP[4]}" = "releases" ] &&
            [ "${TMP[5]}" = "download" ]; then
-            echo "TAG=${TMP[6]}" | tee -a "$GITHUB_ENV"
-            echo "BASENAME=${TMP[7]}" | tee -a "$GITHUB_ENV"
+          echo "TAG=${TMP[6]}" | tee -a "$GITHUB_ENV"
+          echo "BASENAME=${TMP[7]}" | tee -a "$GITHUB_ENV"
         else
-            echo "::error::ArchiveURL in PackageInfo.g does not point to a GitHub release"
-            exit 1
+          echo "::error::ArchiveURL in PackageInfo.g does not point to a GitHub release"
+          exit 1
         fi
         echo "PKGNAME=$(cat package-info.json | jq -r '.PackageName')" | tee -a "$GITHUB_ENV"
         echo "VERSION=$(cat package-info.json | jq -r '.Version')" | tee -a "$GITHUB_ENV"
@@ -113,19 +127,10 @@ runs:
       shell: bash
       if: ${{ inputs.force != 'true' }}
       run: |
-        # Convert DD/MM/YYYY to YYYY-MM-DD
-        if [[ "$DATE" =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
-          DATE=$(echo "$DATE" | awk -F/ '{print $3"-"$2"-"$1}')
-        fi
-        
-        TODAY=$(date +%Y-%m-%d)
-        YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
-        TOMORROW=$(date -d "tomorrow" +%Y-%m-%d)
-
-        if [[ "$DATE" != "$TODAY" && "$DATE" != "$YESTERDAY" && "$DATE" != "$TOMORROW" ]]; then
-          echo "::error::Date found in PackageInfo.g ($DATE) does not match current date ($TODAY) up to ±1 day."
+        $GITHUB_ACTION_PATH/scripts/check_date.sh $DATE || {
+          echo "::error::Date found in PackageInfo.g ($DATE) does not match current date ($(date +%Y-%m-%d)) up to ±1 day."
           exit 1
-        fi
+        }
 
     # We make a copy of the current directory to build the release from, because
     # the next step will remove files/folders that may be necessary for subsequent
@@ -140,15 +145,15 @@ runs:
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run: |
-         echo "::group::Cleanup git and github related files"
-         rm -rvf .git* .hg* .cvs* .circleci
-         echo "::group::Cleanup codecov, travis, azure-pipelines"
-         rm -fv .codecov.* .travis.* .appveyor.* azure-pipelines.*
-         rm -fv .gaplint.*
-         rm -fv requirements.txt
+        echo "::group::Cleanup git and github related files"
+        rm -rvf .git* .hg* .cvs* .circleci
+        echo "::group::Cleanup codecov, travis, azure-pipelines"
+        rm -fv .codecov.* .travis.* .appveyor.* azure-pipelines.*
+        rm -fv .gaplint.*
+        rm -fv requirements.txt
 
-         echo "::group::Cleanup macOS metadata"
-         find . -name .DS_Store -exec rm -f {} +
+        echo "::group::Cleanup macOS metadata"
+        find . -name .DS_Store -exec rm -f {} +
 
     - name: "Run autogen.sh"
       shell: bash
@@ -165,37 +170,41 @@ runs:
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run : |
-        if find . -type l | grep -q .; then
+        $GITHUB_ACTION_PATH/scripts/check_symlinks.sh || {
           echo "::error::Symlinks detected"
           exit 1
-        fi
+        }
 
     - name: "Reject bad filenames"
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
-      run: $GITHUB_ACTION_PATH/check_filenames.sh
+      run: |
+        $GITHUB_ACTION_PATH/scripts/check_filenames.sh || {
+          echo "::error::Found problematic filenames"
+          exit 1
+        }
 
     - name: "Create archives"
       shell: bash
       working-directory: ${{ runner.temp }}
       run: |
         for EXT in $ARCHIVE_FORMATS ; do
-            ARCHIVENAME=$BASENAME$EXT
-            echo "Creating $ARCHIVENAME ..."
-            case $EXT in
+          ARCHIVENAME=$BASENAME$EXT
+          echo "Creating $ARCHIVENAME ..."
+          case $EXT in
             .tar.gz)  tar cf - "$BASENAME" | gzip -9c > "$ASSETS/$ARCHIVENAME" ;;
             .tar.bz2) tar cf - "$BASENAME" | bzip2 -9c > "$ASSETS/$ARCHIVENAME" ;;
             .zip)     zip -r9 --quiet "$ASSETS/$ARCHIVENAME" "$BASENAME" ;;
             *)
-                echo "::error::Unsupported archive format $EXT"
-                exit 1
-                ;;
-            esac
-            if [ ! -f "$ASSETS/$ARCHIVENAME" ] ; then
-                echo "::error::Failed at creating "$ARCHIVENAME""
-                exit 1
-            fi
-            echo "Created $ARCHIVENAME"
+              echo "::error::Unsupported archive format $EXT"
+              exit 1
+              ;;
+          esac
+          if [ ! -f "$ASSETS/$ARCHIVENAME" ] ; then
+            echo "::error::Failed at creating '$ARCHIVENAME'"
+            exit 1
+          fi
+          echo "Created $ARCHIVENAME"
         done
 
     - name: "Copy manual(s)"
