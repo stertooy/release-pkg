@@ -41,7 +41,7 @@ runs:
     - name: "Check documentation for absolute paths"
       shell: bash
       run: |
-        $GITHUB_ACTION_PATH/check_absolute_paths.sh || {
+        $GITHUB_ACTION_PATH/scripts/check_absolute_paths.sh || {
           echo "::error::Found absolute paths in HTML file(s)"
           exit 1
         }
@@ -72,7 +72,7 @@ runs:
     - name: "Generate package-info.json"
       shell: bash
       run: |
-        gap -A -q $GITHUB_ACTION_PATH/pkginfo_to_json.g
+        gap -A -q $GITHUB_ACTION_PATH/scripts/pkginfo_to_json.g
         if [ ! -f "package-info.json" ] ; then
           echo "::error::Could not create package-info.json"
           exit 1
@@ -127,7 +127,7 @@ runs:
       shell: bash
       if: ${{ inputs.force != 'true' }}
       run: |
-        $GITHUB_ACTION_PATH/check_date.sh $DATE || {
+        $GITHUB_ACTION_PATH/scripts/check_date.sh $DATE || {
           echo "::error::Date found in PackageInfo.g ($DATE) does not match current date ($(date +%Y-%m-%d)) up to ±1 day."
           exit 1
         }
@@ -170,7 +170,7 @@ runs:
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run : |
-        $GITHUB_ACTION_PATH/check_symlinks.sh || {
+        $GITHUB_ACTION_PATH/scripts/check_symlinks.sh || {
           echo "::error::Symlinks detected"
           exit 1
         }
@@ -179,7 +179,7 @@ runs:
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run: |
-        $GITHUB_ACTION_PATH/check_filenames.sh || {
+        $GITHUB_ACTION_PATH/scripts/check_filenames.sh || {
           echo "::error::Found problematic filenames"
           exit 1
         }
