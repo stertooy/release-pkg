@@ -126,7 +126,7 @@ jobs:
           ln -s actual.file sym.link
           ../check_symlinks.sh > $RUNNER_TEMP/symlinks_run.txt || true # suppress expected error here
           diff <(sort $RUNNER_TEMP/symlinks_run.txt) - <<EOF
-          ./herp.derp
+          ./sym.link
           EOF
 
       - name: "Test date.sh"
