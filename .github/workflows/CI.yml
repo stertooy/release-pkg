@@ -118,7 +118,7 @@ jobs:
           ./sym.link
           EOF
 
-      - name: "Test date.sh"
+      - name: "Test check_date.sh"
         shell: bash
         working-directory: scripts
         run: |
