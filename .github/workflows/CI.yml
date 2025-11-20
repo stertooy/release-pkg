@@ -65,14 +65,15 @@ jobs:
 
       - name: "Shellcheck"
         shell: bash
+        working-directory: scripts
         run: shellcheck -o all *.sh
 
       - name: "Test check_filenames.sh"
         shell: bash
+        working-directory: scripts
         run: |
-          mkdir -p filename-dir
+          mkdir -p filename-dir/doc
           cd filename-dir
-          mkdir -p doc
           touch :q \\Users\\GillBates AUX COM².tar.gz period. space\  DOC \
             PackageInfo.g doc/manual.pdf manual.pdf README readme.txt auxiliary .gaplint.yml
           ../check_filenames.sh > $RUNNER_TEMP/filenames_run.txt || true # suppress expected error here
@@ -89,6 +90,7 @@ jobs:
 
       - name: "Test check_absolute_paths.sh"
         shell: bash
+        working-directory: scripts
         run: |
           mkdir -p paths-dir/doc
           cd paths-dir
@@ -101,3 +103,30 @@ jobs:
           ./doc/chap1_mj.html
           ./doc/chap2_mj.html
           EOF
+
+      - name: "Test check_symlinks.sh"
+        shell: bash
+        working-directory: scripts
+        run: |
+          mkdir -p symlinks-dir
+          cd symlinks-dir
+          echo "THIS FILE IS NOT A SYMLINK" > actual.file
+          ../check_symlinks.sh > $RUNNER_TEMP/symlinks_run.txt # should not give error
+          ln -s actual.file sym.link
+          ../check_symlinks.sh > $RUNNER_TEMP/symlinks_run.txt || true # suppress expected error here
+          diff <(sort $RUNNER_TEMP/symlinks_run.txt) - <<EOF
+          ./herp.derp
+          EOF
+
+      - name: "Test date.sh"
+        shell: bash
+        working-directory: scripts
+        run: |
+          if   ! ./check_date.sh "$(date +%Y-%m-%d)"                 \
+            || ! ./check_date.sh "$(date -d "1 day ago" +%Y-%m-%d)"  \
+            || ! ./check_date.sh "$(date -d "1 day" +%Y-%m-%d)"      \
+            ||   ./check_date.sh "$(date -d "2 days ago" +%Y-%m-%d)" \
+            ||   ./check_date.sh "$(date -d "2 days" +%Y-%m-%d)"
+          then
+            exit 1
+          fi
