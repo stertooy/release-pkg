@@ -23,6 +23,14 @@ runs:
       shell: bash
       run: |
         gap -A -q -c 'QuitGap(ValidatePackageInfo("PackageInfo.g"));'
+        
+    - name: "Check documentation for absolute paths"
+      shell: bash
+      run: |
+        $GITHUB_ACTION_PATH/check_absolute_paths.sh || {
+          echo "::error::Found absolute paths in HTML file(s)"
+          exit 1
+        }
 
     - name: "Create assets folder"
       shell: bash
