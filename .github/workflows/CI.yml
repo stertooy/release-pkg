@@ -63,6 +63,17 @@ jobs:
       - name: "Check out this repository"
         uses: actions/checkout@v5
 
+      - name: "herp"
+        shell: bash
+        run: |
+          ls -a
+
+      - name: "derp"
+        shell: bash
+        working-directory: scripts
+        run: |
+          ls -a
+
       - name: "Shellcheck"
         shell: bash
         working-directory: scripts
