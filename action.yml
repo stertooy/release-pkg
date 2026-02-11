@@ -215,13 +215,6 @@ runs:
             cp $DOC $ASSETS
         done
 
-    - name: "Copy manual(s)"
-      shell: bash
-      run: |
-        for DOC in $DOCS ; do
-            cp $DOC $ASSETS
-        done
-
     - name: "Make GitHub release"
       uses: softprops/action-gh-release@v2
       if: ${{ inputs.dry-run == 'false' }}
