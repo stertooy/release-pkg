@@ -226,6 +226,11 @@ runs:
         files: ${{ env.ASSETS }}/*
         target_commitish: ${{ github.sha }}
 
+    - name: "Copy body-text"
+      if: ${{ inputs.dry-run == 'true' }}
+      shell: bash
+      run: echo "${{ inputs.body-text }}" > $ASSETS/BODY.md
+
     - name: "Upload the release"
       uses: actions/upload-artifact@v5
       if: ${{ inputs.dry-run == 'true' }}
