@@ -245,7 +245,7 @@ runs:
       uses: actions/upload-artifact@v7
       if: ${{ inputs.dry-run == 'true' }}
       with:
-        name: "Release_text_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
+        name: "Release_text_for_${{ env.PKGNAME }}_${{ env.VERSION }}.md"
         archive: false
         path: ${{ runner.temp }}/BODY.md
         if-no-files-found: error
