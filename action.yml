@@ -232,18 +232,21 @@ runs:
       run: echo "${{ inputs.body-text }}" > $RUNNER_TEMP/BODY.md
 
     - name: "Upload the release"
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       if: ${{ inputs.dry-run == 'true' }}
       with:
-        name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
+        name: "Release_assets_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
+        archive: true
         path: ${{ env.ASSETS }}/*
         if-no-files-found: error
         overwrite: true  # necessary for release-pkg test suite
 
     - name: "Upload the release"
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       if: ${{ inputs.dry-run == 'true' }}
       with:
+        name: "Release_text_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
+        archive: false
         path: ${{ runner.temp }}/BODY.md
         if-no-files-found: error
         overwrite: true  # necessary for release-pkg test suite
