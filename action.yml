@@ -229,7 +229,7 @@ runs:
     - name: "Copy body-text"
       if: ${{ inputs.dry-run == 'true' }}
       shell: bash
-      run: echo "${{ inputs.body-text }}" > $ASSETS/BODY.md
+      run: echo "${{ inputs.body-text }}" > $RUNNER_TEMP/BODY.md
 
     - name: "Upload the release"
       uses: actions/upload-artifact@v5
@@ -237,5 +237,13 @@ runs:
       with:
         name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
         path: ${{ env.ASSETS }}/*
+        if-no-files-found: error
+        overwrite: true  # necessary for release-pkg test suite
+
+    - name: "Upload the release"
+      uses: actions/upload-artifact@v5
+      if: ${{ inputs.dry-run == 'true' }}
+      with:
+        path: ${{ runner.temp }}/BODY.md
         if-no-files-found: error
         overwrite: true  # necessary for release-pkg test suite
