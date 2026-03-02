@@ -229,7 +229,7 @@ runs:
     - name: "Copy body-text"
       if: ${{ inputs.dry-run == 'true' }}
       shell: bash
-      run: echo "${{ inputs.body-text }}" > $RUNNER_TEMP/BODY.md
+      run: echo "${{ inputs.body-text }}" > $RUNNER_TEMP/Release_text_for_${PKGNAME}_${VERSION}.md
 
     - name: "Upload the release"
       uses: actions/upload-artifact@v7
@@ -247,6 +247,6 @@ runs:
       with:
         name: "Release_text_for_${{ env.PKGNAME }}_${{ env.VERSION }}.md"
         archive: false
-        path: ${{ runner.temp }}/BODY.md
+        path: ${{ runner.temp }}/Release_text_for_*.md
         if-no-files-found: error
         overwrite: true  # necessary for release-pkg test suite
