@@ -191,18 +191,19 @@ runs:
       run: |
         # Recommendations from https://reproducible-builds.org/docs/archives/
         SOURCE_DATE_EPOCH=0
-        TAROPTS="\
-          --sort=name \
-          --mtime=\"@${SOURCE_DATE_EPOCH}\" \
-          --owner=0 --group=0 --numeric-owner \
-          --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
-          -cf - \"${BASENAME}\" "
+        TAROPTS=(
+          --sort=name
+          --mtime="@${SOURCE_DATE_EPOCH}"
+          --owner=0 --group=0 --numeric-owner
+          --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime
+          -cf - "${BASENAME}"
+        )
         for EXT in $ARCHIVE_FORMATS ; do
           ARCHIVENAME=$BASENAME$EXT
           echo "Creating $ARCHIVENAME ..."
           case $EXT in
-            .tar.gz)  tar $TAROPTS | gzip -9c > "$ASSETS/$ARCHIVENAME" ;;
-            .tar.bz2) tar $TAROPTS | bzip2 -9c > "$ASSETS/$ARCHIVENAME" ;;
+            .tar.gz)  tar "${TAROPTS[@]}" | gzip -9c > "$ASSETS/$ARCHIVENAME" ;;
+            .tar.bz2) tar "${TAROPTS[@]}" | bzip2 -9c > "$ASSETS/$ARCHIVENAME" ;;
             .zip)     zip -r9 --quiet "$ASSETS/$ARCHIVENAME" "$BASENAME" ;;
             *)
               echo "::error::Unsupported archive format $EXT"
