@@ -190,6 +190,7 @@ runs:
       working-directory: ${{ runner.temp }}
       run: |
         # Recommendations from https://reproducible-builds.org/docs/archives/
+        SOURCE_DATE_EPOCH=0
         TAROPTS="\
           --sort=name \
           --mtime=\"@${SOURCE_DATE_EPOCH}\" \
