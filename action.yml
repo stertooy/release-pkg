@@ -244,7 +244,7 @@ runs:
     - name: "Copy body-text"
       if: ${{ inputs.dry-run == 'true' }}
       shell: bash
-      run: echo "${{ inputs.body-text }}" > $RUNNER_TEMP/Release_text_for_${PKGNAME}_${VERSION}.md
+      run: echo "${{ inputs.body-text }}" > $RUNNER_TEMP/Release_text_for_${PKGNAME}_${VERSION}${{ inputs.affix }}.md
 
     - name: "Upload the release assets"
       uses: actions/upload-artifact@v7
@@ -259,7 +259,6 @@ runs:
       uses: actions/upload-artifact@v7
       if: ${{ inputs.dry-run == 'true' }}
       with:
-        name: "HERP_DERP-${{ env.PKGNAME }}_${{ env.VERSION }}${{ inputs.affix }}.md"
         archive: false
         path: ${{ runner.temp }}/Release_text_for_*.md
         if-no-files-found: error
