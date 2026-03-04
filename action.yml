@@ -159,7 +159,7 @@ runs:
     - name: "Run autogen.sh"
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
-      run : |
+      run: |
         if [ -x autogen.sh ] ; then
           sudo apt-get install autoconf automake build-essential --yes
           echo "Generating build system files"
@@ -170,7 +170,7 @@ runs:
     - name: "Check for symlinks"
       shell: bash
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
-      run : |
+      run: |
         $GITHUB_ACTION_PATH/scripts/check_symlinks.sh || {
           echo "::error::Symlinks detected"
           exit 1
@@ -189,14 +189,24 @@ runs:
       shell: bash
       working-directory: ${{ runner.temp }}
       run: |
+        SOURCE_DATE_EPOCH=0
+        # Normalise file modification times
+        find $BASENAME -newermt "@${SOURCE_DATE_EPOCH}" -print0 | xargs -0r touch --no-dereference --date="@${SOURCE_DATE_EPOCH}"
+        # Tar options
+        TAROPTS=(
+          --sort=name
+          --owner=0 --group=0 --numeric-owner
+          --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime
+          -cf - "${BASENAME}"
+        )
         for EXT in $ARCHIVE_FORMATS ; do
           ARCHIVENAME=$BASENAME$EXT
           
           echo "Creating $ARCHIVENAME ..."
           case $EXT in
-            .tar.gz)  tar cf - "$BASENAME" | gzip -9c > "$ASSETS/$ARCHIVENAME" ;;
-            .tar.bz2) tar cf - "$BASENAME" | bzip2 -9c > "$ASSETS/$ARCHIVENAME" ;;
-            .zip)     zip -X -r9 --quiet "$ASSETS/$ARCHIVENAME" "$BASENAME" ;;
+            .tar.gz)  tar "${TAROPTS[@]}" | gzip -9c > "$ASSETS/$ARCHIVENAME" ;;
+            .tar.bz2) tar "${TAROPTS[@]}" | bzip2 -9c > "$ASSETS/$ARCHIVENAME" ;;
+            .zip)     find "$BASENAME" -print0 | LC_ALL=C sort -z | zip -X -r9 --quiet "$ASSETS/$ARCHIVENAME" - ;;
             *)
               echo "::error::Unsupported archive format $EXT"
               exit 1
