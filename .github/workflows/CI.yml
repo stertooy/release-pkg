@@ -84,9 +84,11 @@ jobs:
           ls -a ./v1
           echo "--- 2. ---"
           ls -a ./v2
-          sha256sum v1/*.zip     v2/*.zip
-          sha256sum v1/*.tar.gz  v2/*.tar.gz
-          sha256sum v1/*.tar.bz2 v2/*.tar.bz2
+          echo "PKGNAME=${PKGNAME}"
+          ARCHIVE="Release_for_${PKGNAME}_${VERSION}"
+          sha256sum v1/${ARCHIVE}/*.zip     v2/${ARCHIVE}/*.zip
+          sha256sum v1/${ARCHIVE}/*.tar.gz  v2/${ARCHIVE}/*.tar.gz
+          sha256sum v1/${ARCHIVE}/*.tar.bz2 v2/${ARCHIVE}/*.tar.bz2
 
   test-scripts:
     name: "Test the scripts used by this action"
