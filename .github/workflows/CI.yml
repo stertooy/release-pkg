@@ -37,6 +37,9 @@ jobs:
         run: |
           DATE=$(date +%d/%m/%Y)
           sed -i -E "s|(Date[[:space:]]*:?=[[:space:]]*['\"]).*(['\"])|\1${DATE}\2|" "PackageInfo.g"
+          # Also create folders
+          mkdir $RUNNER_TEMP/v1
+          mkdir $RUNNER_TEMP/v2
 
       - name: "Check out this repository"
         uses: actions/checkout@v5
@@ -61,7 +64,6 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           path: "${{ runner.temp }}/v1"
-          pattern: "*.zip"
 
       - name: "Make a release (2)"
         uses: ./.this-action/
@@ -73,7 +75,6 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           path: "${{ runner.temp }}/v2"
-          pattern: "*.zip"
 
       - name: "Compare releases"
         shell: bash
