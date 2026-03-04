@@ -51,11 +51,38 @@ jobs:
         with:
           use-latex: true
 
-      - name: "Make a release"
+      - name: "Make a release (1)"
         uses: ./.this-action/
         with:
           dry-run: true
           force: ${{ matrix.force }}
+
+      - name: "Download release (1)"
+        uses: actions/download-artifact@v7
+        with:
+          path: ${{ runner.temp }}/v1
+          pattern: *.zip
+
+      - name: "Make a release (2)"
+        uses: ./.this-action/
+        with:
+          dry-run: true
+          force: ${{ matrix.force }}
+
+      - name: "Download release (2)"
+        uses: actions/download-artifact@v7
+        with:
+          path: ${{ runner.temp }}/v2
+          pattern: *.zip
+
+      - name: "Compare releases"
+        shell: bash
+        run: |
+          cd $RUNNER_TEMP
+          echo "--- 1. ---"
+          ls -a ./v1
+          echo "--- 2. ---"
+          ls -& ./v2
 
   test-scripts:
     name: "Test the scripts used by this action"
