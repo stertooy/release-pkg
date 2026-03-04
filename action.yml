@@ -196,6 +196,7 @@ runs:
       working-directory: ${{ runner.temp }}
       run: |
         # Note that we change file modification times / sorting / ... to obtain reproducible builds
+        # Recommendations taken from https://reproducible-builds.org/docs/archives/
         find $BASENAME -newermt "@${SOURCE_DATE_EPOCH}" -print0 | xargs -0r touch --no-dereference --date="@${SOURCE_DATE_EPOCH}"
         # Tar options
         TAROPTS=(
