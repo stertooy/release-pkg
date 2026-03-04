@@ -91,28 +91,26 @@ jobs:
           ls -a v2
           
           for EXT in .tar.gz .tar.bz2 .zip; do
-            f1=$(echo "v1/*${EXT}")
-            f2=$(echo "v2/*${EXT}")
+            for file1 in v1/*"$EXT"; do
+              file2="v2/$(basename "$file1")"
 
-            echo $f1
-            echo $f2
+              # Error if second archive doesn't exist
+              [[ -f "$file1" && -f "$file2" ]] || exit 1
 
-            # Skip if archive format doesn't exist
-            [[ -f "$f1" && -f "$f2" ]] || continue
-
-            echo "Both files exist"
-          
-            chk1=$(sha256sum "$f1" | cut -d' ' -f1)
-            chk2=$(sha256sum "$f2" | cut -d' ' -f1)
-          
-            if [[ "$chk1" != "$chk2" ]]; then
-              echo "::error::Mismatch for ${EXT} archives"
-              echo "v1: $chk1"
-              echo "v2: $chk2"
-              exit 1
-            else
-              echo "${EXT} archives are reproducible"
-            fi
+              echo "Both files exist"
+            
+              chk1=$(sha256sum "$file1" | cut -d' ' -f1)
+              chk2=$(sha256sum "$file2" | cut -d' ' -f1)
+            
+              if [[ "$chk1" != "$chk2" ]]; then
+                echo "::error::Mismatch for ${EXT} archives"
+                echo "v1: $chk1"
+                echo "v2: $chk2"
+                exit 1
+              else
+                echo "${EXT} archives are reproducible"
+              fi
+            done
           done
 
   test-scripts:
