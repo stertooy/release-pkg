@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         package: [ "gap-actions/ActionTestGAPDocPackage", "gap-actions/ActionTestOldDocPackage" ]
-        affix: [ 1, 2 ] # Used to give distinct names to artifacts
+        affix: [ 1, 2 ]
         include:
           - package: "stertooy/ActionTestGAPDocPackage"
             force: true
