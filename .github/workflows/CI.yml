@@ -20,6 +20,8 @@ jobs:
         include:
           - package: "stertooy/ActionTestGAPDocPackage"
             force: true
+          - package: "stertooy/ActionTestOldDocPackage"
+            force: false
     
     steps:
       # the order of the checkout actions is important because all contents of
