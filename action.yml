@@ -14,6 +14,10 @@ inputs:
     description: "Body text for the new GitHub release that will appear on the package's GitHub Releases page"
     required: false
     default: "Release of ${{ github.event.repository.name }}"
+  affix:
+    description: "UNDOCUMENTED. Required for testing to ensure unique artifact names"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -241,7 +245,7 @@ runs:
       uses: actions/upload-artifact@v5
       if: ${{ inputs.dry-run == 'true' }}
       with:
-        name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
+        name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}${{ inputs.affix }}"
         path: ${{ env.ASSETS }}/*
         if-no-files-found: error
         overwrite: true  # necessary for release-pkg test suite
