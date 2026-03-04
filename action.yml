@@ -208,7 +208,7 @@ runs:
             .tar.gz)  tar "${TAROPTS[@]}" | gzip -9c > "$ASSETS/$ARCHIVENAME" ;;
             .tar.bz2) tar "${TAROPTS[@]}" | bzip2 -9c > "$ASSETS/$ARCHIVENAME" ;;
             .zip)
-              TZ=UTC find "$BASENAME" -print0 | LC_ALL=C sort -z | zip -X -r9 --quiet "$ASSETS/$ARCHIVENAME" -
+              TZ=UTC find "$BASENAME" -print0 | LC_ALL=C sort -z | tr '\0' '\n' | zip -X -r9 --quiet "$ASSETS/$ARCHIVENAME" -@
               TZ=UTC touch --date="@${SOURCE_DATE_EPOCH}" "${ASSETS}/${ARCHIVENAME}.zip"
               ;;
             *)
