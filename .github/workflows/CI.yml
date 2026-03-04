@@ -79,6 +79,7 @@ jobs:
         shell: bash
         working-directory: ${{ runner.temp }}
         run: |
+          ARCHIVE="${PKGNAME}-${VERSION}"
           for EXT in .tar.gz .tar.bz2 .zip; do
             f1="v1/${ARCHIVE}${EXT}"
             f2="v2/${ARCHIVE}${EXT}"
