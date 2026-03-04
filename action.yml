@@ -250,7 +250,7 @@ runs:
       uses: actions/upload-artifact@v7
       if: ${{ inputs.dry-run == 'true' }}
       with:
-        name: "Release_assets_for_${{ env.PKGNAME }}_${{ env.VERSION }}.zip"
+        name: "Release_assets_for_${{ env.PKGNAME }}_${{ env.VERSION }}${{ inputs.affix }}.zip"
         archive: true
         path: ${{ env.ASSETS }}/*
         if-no-files-found: error
@@ -259,6 +259,7 @@ runs:
       uses: actions/upload-artifact@v7
       if: ${{ inputs.dry-run == 'true' }}
       with:
+        name: "HERP_DERP-${{ env.PKGNAME }}_${{ env.VERSION }}${{ inputs.affix }}.md"
         archive: false
         path: ${{ runner.temp }}/Release_text_for_*.md
         if-no-files-found: error
