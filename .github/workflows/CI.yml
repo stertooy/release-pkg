@@ -73,7 +73,6 @@ jobs:
         with:
           pattern: "Release_assets_for_${{ matrix.package }}*"
           path: ${{ runner.temp }}
-          skip-decompress: true
           
       - name: "Compare releases"
         shell: bash
@@ -82,11 +81,9 @@ jobs:
           # TODO: remove this, testing only
           ls -a
 
-          tar xvf Release_assets_for_*-1.zip -C v1
-          tar xvf Release_assets_for_*-2.zip -C v2
-          
-          #mv Release_assets_for_*-1 v1
-          #mv Release_assets_for_*-2 v2
+          # The .zip is not an extension but part of directory name
+          mv Release_assets_for_*-1.zip v1
+          mv Release_assets_for_*-2.zip v2
           
           for EXT in .tar.gz .tar.bz2 .zip; do
             for file1 in v1/*"$EXT"; do
