@@ -16,11 +16,10 @@ jobs:
       matrix:
         ref: [ "more-formats" ]
         affix: [ "-1", "-2" ]
+        package: [ "stertooy/ActionTestGAPDocPackage", "stertooy/ActionTestOldDocPackage" ]
         include:
           - package: "stertooy/ActionTestGAPDocPackage"
             force: true
-          - package: "stertooy/ActionTestOldDocPackage"
-            force: false
     
     steps:
       # the order of the checkout actions is important because all contents of
