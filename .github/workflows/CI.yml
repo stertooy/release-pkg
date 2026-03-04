@@ -52,11 +52,12 @@ jobs:
         with:
           use-latex: true
 
-      - name: "Make a release (1)"
+      - name: "Make a release"
         uses: ./.this-action/
         with:
           dry-run: true
           force: ${{ matrix.force }}
+          affix: ${{ matrix.affix }}
 
   check-reproducibility:
     name: "Check if builds are reproducible"
@@ -71,7 +72,7 @@ jobs:
       - name: "Download releases"
         uses: actions/download-artifact@v7
         with:
-          pattern: "Release_for_${{ matrix.package }}"
+          pattern: "Release_for_${{ matrix.package }}*"
           path: ${{ runner.temp }}
           
       - name: "Compare releases"
@@ -79,10 +80,13 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: |
           ls -a
-          ARCHIVE="${PKGNAME}-${VERSION}"
+          
+          unzip -d v1/ Release_for_${{ matrix.package }}*-1.zip
+          unzip -d v2/ Release_for_${{ matrix.package }}*-2.zip
+          
           for EXT in .tar.gz .tar.bz2 .zip; do
-            f1="v1/${ARCHIVE}${EXT}"
-            f2="v2/${ARCHIVE}${EXT}"
+            f1=$(echo "v1/${{ matrix.package }}*${EXT}")
+            f2=$(echo "v2/${{ matrix.package }}*${EXT}")
 
             # Skip if archive format doesn't exist
             [[ -f "$f1" && -f "$f2" ]] || continue
