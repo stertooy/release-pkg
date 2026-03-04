@@ -79,16 +79,8 @@ jobs:
         shell: bash
         working-directory: ${{ runner.temp }}
         run: |
-          ls -a
-          
           mv Release_for_*-1 v1
           mv Release_for_*-2 v2
-
-          echo "--- v1 ---"
-          ls -a v1
-          
-          echo "--- v2 ---"
-          ls -a v2
           
           for EXT in .tar.gz .tar.bz2 .zip; do
             for file1 in v1/*"$EXT"; do
@@ -96,8 +88,6 @@ jobs:
 
               # Error if second archive doesn't exist
               [[ -f "$file1" && -f "$file2" ]] || exit 1
-
-              echo "Both files exist"
             
               chk1=$(sha256sum "$file1" | cut -d' ' -f1)
               chk2=$(sha256sum "$file2" | cut -d' ' -f1)
