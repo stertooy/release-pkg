@@ -81,12 +81,12 @@ jobs:
         run: |
           ls -a
           
-          unzip -d v1/ Release_for_${{ matrix.package }}*-1.zip
-          unzip -d v2/ Release_for_${{ matrix.package }}*-2.zip
+          mv Release_for_*-1 v1
+          mv Release_for_*-2 v2
           
           for EXT in .tar.gz .tar.bz2 .zip; do
-            f1=$(echo "v1/${{ matrix.package }}*${EXT}")
-            f2=$(echo "v2/${{ matrix.package }}*${EXT}")
+            f1=$(echo "v1/*${EXT}")
+            f2=$(echo "v2/*${EXT}")
 
             # Skip if archive format doesn't exist
             [[ -f "$f1" && -f "$f2" ]] || continue
