@@ -84,6 +84,9 @@ jobs:
           ls -a ./v1
           echo "--- 2. ---"
           ls -a ./v2
+          shasum256 v1/*.zip v2/*.zip
+          shasum256 v1/*.tar.gz v2/*.tar.gz
+          shasum256 v1/*.tar.bz2 v2/*.tar.bz2
 
   test-scripts:
     name: "Test the scripts used by this action"
