@@ -63,6 +63,7 @@ jobs:
       - name: "Download release (1)"
         uses: actions/download-artifact@v7
         with:
+          name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
           path: "${{ runner.temp }}/v1"
 
       - name: "Make a release (2)"
@@ -74,6 +75,7 @@ jobs:
       - name: "Download release (2)"
         uses: actions/download-artifact@v7
         with:
+          name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
           path: "${{ runner.temp }}/v2"
 
       - name: "Compare releases"
