@@ -99,6 +99,8 @@ jobs:
 
             # Skip if archive format doesn't exist
             [[ -f "$f1" && -f "$f2" ]] || continue
+
+            echo "Both files exist"
           
             chk1=$(sha256sum "$f1" | cut -d' ' -f1)
             chk2=$(sha256sum "$f2" | cut -d' ' -f1)
