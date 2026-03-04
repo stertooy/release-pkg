@@ -78,6 +78,9 @@ jobs:
         shell: bash
         working-directory: ${{ runner.temp }}
         run: |
+          # TODO: remove this, testing only
+          ls -a
+          
           mv Release_assets_for_*-1 v1
           mv Release_assets_for_*-2 v2
           
