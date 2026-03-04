@@ -199,6 +199,7 @@ runs:
           --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime
           -cf - "${BASENAME}"
         )
+        # TODO: fix zip?
         for EXT in $ARCHIVE_FORMATS ; do
           ARCHIVENAME=$BASENAME$EXT
           
