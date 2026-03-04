@@ -71,15 +71,15 @@ jobs:
       - name: "Download releases"
         uses: actions/download-artifact@v7
         with:
-          pattern: "Release_for_${{ matrix.package }}*"
+          pattern: "Release_assets_for_${{ matrix.package }}*"
           path: ${{ runner.temp }}
           
       - name: "Compare releases"
         shell: bash
         working-directory: ${{ runner.temp }}
         run: |
-          mv Release_for_*-1 v1
-          mv Release_for_*-2 v2
+          mv Release_assets_for_*-1 v1
+          mv Release_assets_for_*-2 v2
           
           for EXT in .tar.gz .tar.bz2 .zip; do
             for file1 in v1/*"$EXT"; do
