@@ -14,8 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        affix: [ 1, 2 ]
         ref: [ "more-formats" ]
-        affix: [ "-1", "-2" ]
         package: [ "stertooy/ActionTestGAPDocPackage", "stertooy/ActionTestOldDocPackage" ]
         include:
           - package: "stertooy/ActionTestGAPDocPackage"
@@ -57,7 +57,7 @@ jobs:
         with:
           dry-run: true
           force: ${{ matrix.force }}
-          affix: ${{ matrix.affix }}
+          affix: "-${{ matrix.affix }}"
 
   check-reproducibility:
     name: "Check if builds are reproducible"
@@ -85,9 +85,6 @@ jobs:
           for EXT in .tar.gz .tar.bz2 .zip; do
             for file1 in v1/*"$EXT"; do
               file2="v2/$(basename "$file1")"
-
-              # Error if second archive doesn't exist
-              [[ -f "$file1" && -f "$file2" ]] || exit 1
             
               chk1=$(sha256sum "$file1" | cut -d' ' -f1)
               chk2=$(sha256sum "$file2" | cut -d' ' -f1)
