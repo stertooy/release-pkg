@@ -14,12 +14,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        ref: [ "more-formats" ]
+        affix: [ "-1", "-2" ]
         include:
           - package: "stertooy/ActionTestGAPDocPackage"
-            ref: "more-formats"
             force: true
           - package: "stertooy/ActionTestOldDocPackage"
-            ref: "more-formats"
             force: false
     
     steps:
@@ -57,28 +57,27 @@ jobs:
           dry-run: true
           force: ${{ matrix.force }}
 
-      - name: "Download release (1)"
+  check-reproducibility:
+    name: "Check if builds are reproducible"
+    runs-on: ubuntu-latest
+    needs: test-action
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [ "ActionTestGAPDocPackage", "ActionTestOldDocPackage" ]
+    steps:
+    
+      - name: "Download releases"
         uses: actions/download-artifact@v7
         with:
-          name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
-          path: "${{ runner.temp }}/v1"
-
-      - name: "Make a release (2)"
-        uses: ./.this-action/
-        with:
-          dry-run: true
-          force: ${{ matrix.force }}
-
-      - name: "Download release (2)"
-        uses: actions/download-artifact@v7
-        with:
-          name: "Release_for_${{ env.PKGNAME }}_${{ env.VERSION }}"
-          path: "${{ runner.temp }}/v2"
-
+          pattern: "Release_for_${{ matrix.package }}"
+          path: ${{ runner.temp }}
+          
       - name: "Compare releases"
         shell: bash
         working-directory: ${{ runner.temp }}
         run: |
+          ls -a
           ARCHIVE="${PKGNAME}-${VERSION}"
           for EXT in .tar.gz .tar.bz2 .zip; do
             f1="v1/${ARCHIVE}${EXT}"
