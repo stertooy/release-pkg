@@ -193,8 +193,8 @@ runs:
       shell: bash
       working-directory: ${{ runner.temp }}
       run: |
-        # Get last commit date
-        SOURCE_DATE_EPOCH=$(git show -s --format=%ct)
+        # Get release date
+        SOURCE_DATE_EPOCH=$(date -d "$DATE" +%s)
 
         # Note that we change file modification times / sorting / ... to obtain reproducible builds
         # Recommendations taken from https://reproducible-builds.org/docs/archives/
