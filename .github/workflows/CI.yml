@@ -14,9 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        affix: [ 1, 2 ]
-        ref: [ "more-formats" ]
         package: [ "stertooy/ActionTestGAPDocPackage", "stertooy/ActionTestOldDocPackage" ]
+        affix: [ 1, 2 ]
         include:
           - package: "stertooy/ActionTestGAPDocPackage"
             force: true
@@ -30,7 +29,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: ${{ matrix.package }}
-          ref: ${{ matrix.ref }}
+          ref: "more-formats" # TODO: remove this!
 
       - name: "Fake the package's date so it does not get rejected later on"
         shell: bash
