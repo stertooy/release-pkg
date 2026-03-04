@@ -15,11 +15,11 @@ jobs:
       fail-fast: false
       matrix:
         package: [ "gap-actions/ActionTestGAPDocPackage", "gap-actions/ActionTestOldDocPackage" ]
-        affix: [ 1, 2 ]
+        affix: [ 1, 2 ] # Run each package twice, to check reproducibility
         include:
-          - package: "stertooy/ActionTestGAPDocPackage"
+          - package: "gap-actions/ActionTestGAPDocPackage"
             force: true
-          - package: "stertooy/ActionTestOldDocPackage"
+          - package: "gap-actions/ActionTestOldDocPackage"
             force: false
     
     steps:
