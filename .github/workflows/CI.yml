@@ -82,7 +82,7 @@ jobs:
           mv Release_assets_for_*-1.zip v1
           mv Release_assets_for_*-2.zip v2
 
-          ERROR=0
+          error_found=false
           for EXT in .tar.gz .tar.bz2 .zip; do
             for file1 in v1/*"$EXT"; do
               file2="v2/$(basename "$file1")"
@@ -95,13 +95,14 @@ jobs:
                 echo "::error::Checksum mismatch for ${EXT} archives"
                 echo "v1: $chk1"
                 echo "v2: $chk2"
-                ERROR=true
+                error_found=true
               else
                 echo "${EXT} archives are reproducible"
               fi
             done
           done
-          if [[ "$ERROR" == "true" ]]; then
+
+          if ${error_found}; then
             exit 1
           fi
 
