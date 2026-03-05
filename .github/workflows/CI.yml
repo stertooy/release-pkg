@@ -80,7 +80,8 @@ jobs:
           # The .zip is not an extension but part of the directory name
           mv Release_assets_for_*-1.zip v1
           mv Release_assets_for_*-2.zip v2
-          
+
+          ERROR=0
           for EXT in .tar.gz .tar.bz2 .zip; do
             for file1 in v1/*"$EXT"; do
               file2="v2/$(basename "$file1")"
@@ -93,12 +94,15 @@ jobs:
                 echo "::error::Checksum mismatch for ${EXT} archives"
                 echo "v1: $chk1"
                 echo "v2: $chk2"
-                exit 1
+                ERROR=true
               else
                 echo "${EXT} archives are reproducible"
               fi
             done
           done
+          if [[ "$ERROR" == "true" ]]; then
+            exit 1
+          fi
 
   test-scripts:
     name: "Test the scripts used by this action"
