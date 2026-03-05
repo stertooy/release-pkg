@@ -194,6 +194,7 @@ runs:
       working-directory: ${{ runner.temp }}
       run: |
         # Get release date
+        echo "DATE=$DATE"
         SOURCE_DATE_EPOCH=$(date -d "$DATE" +%s)
         echo "SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
         
