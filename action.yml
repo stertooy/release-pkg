@@ -213,7 +213,7 @@ runs:
           case $EXT in
             .tar.gz)  tar "${TAROPTS[@]}" | gzip -9c > "$ASSETS/$ARCHIVENAME" ;;
             .tar.bz2) tar "${TAROPTS[@]}" | bzip2 -9c > "$ASSETS/$ARCHIVENAME" ;;
-            .zip) find "$BASENAME" -print0 | LC_ALL=C sort -z | tr '\0' '\n' | zip -X -r9 "$ASSETS/$ARCHIVENAME" -@ ;;
+            .zip) find "$BASENAME" -print0 | LC_ALL=C sort -z | tr '\0' '\n' | zip -X -r9 --quiet "$ASSETS/$ARCHIVENAME" -@ ;;
             *)
               echo "::error::Unsupported archive format $EXT"
               exit 1
