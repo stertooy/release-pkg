@@ -40,6 +40,10 @@ jobs:
         with:
           path: .this-action/
 
+      - name: "Move the action"
+        shell: bash
+        run: mv ./this-action $RUNNER_TEMP/this-action
+
       - name: "Setup GAP"
         uses: gap-actions/setup-gap@v3
           
@@ -49,7 +53,7 @@ jobs:
           use-latex: true
 
       - name: "Make a release"
-        uses: ./.this-action/
+        uses: ${{ runner.temp }}/this-action
         with:
           dry-run: true
           force: ${{ matrix.force }}
