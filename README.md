@@ -1,6 +1,6 @@
 # release-pkg
 
-This GitHub action helps making releases of a GAP package.
+This GitHub action helps make releases of a GAP package.
 It creates release archives and publishes them in a GitHub release.
 
 ## Usage
@@ -28,7 +28,7 @@ these steps:
    "Run workflow". Once again, click it.<br>
    <img src="./images/make_release_step_4.png" width="560" alt="The second 'Run workflow' button">
 
-If everything is configured right, the new release of your package should
+If everything is configured correctly, the new release of your package should
 appear on GitHub and your package's website within a few minutes.
 
 > [!CAUTION]
@@ -43,13 +43,13 @@ appear on GitHub and your package's website within a few minutes.
 ## Initial setup
 
 The action `release-pkg` has to be called by a GitHub workflow of a GAP
-package. The recommend way to do that is to create a file `release.yml` in the
+package. The recommended way to do that is to create a file `release.yml` in the
 `.github/workflows/` folder of your package repository.
 
 Below we provide a template that you can use as-is in your package. You can
-also customize it to suite your specific needs. But for now, if you add and
+also customize it to suit your specific needs. But for now, if you add and
 commit this as a file `.github/workflows/release.yml` to your repository
-(don't forget to also push it out to Github), you should immediately
+(don't forget to also push it out to GitHub), you should immediately
 afterwards be able to follow the instructions in the "Usage" section at the
 start of this document to make a release.
 
@@ -107,7 +107,7 @@ or deleting files that should not end up in the release archives.
 
 By default, this action will fail if there already exists a release
 with the same version number, or if the date in `PackageInfo.g` is more
-than 1 day off from the current date. These safety checks can be turned
+than 1 day off the current date. These safety checks can be turned
 off using the `force` input.
 
 ### Inputs
@@ -117,7 +117,7 @@ All of the following inputs are optional.
 - `dry-run`:
   - Set to `true` to *not* publish the archive this release creates as a GitHub
     release. Useful for testing. (The created archive can still be downloaded
-    from the GitHub web interface if you navigate to the "Action" section and
+    from the GitHub web interface if you navigate to the "Actions" section and
     from there to the relevant run of your workflow.)
   - default: `false`
 - `force`:
@@ -149,7 +149,7 @@ here are a few notes that may be helpful.
    Instead, add a separate step in your release workflow, before this action.
    This step can either invoke your `.release` script, or you can copy the
    content of that script into the step and delete the script afterwards.
- - The GitHub Pages **will not** be updated. However this can be done by the
+ - GitHub Pages **will not** be updated. However, this can be done by the
    [update-gh-pages](https://github.com/gap-actions/update-gh-pages) action.
    This is also demonstrated in the template.
 
