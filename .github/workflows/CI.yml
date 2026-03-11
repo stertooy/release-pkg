@@ -55,7 +55,7 @@ jobs:
         with:
           dry-run: true
           force: ${{ matrix.force }}
-          affix: "-${{ matrix.affix }}"
+          _affix: "-${{ matrix.affix }}"
 
   check-reproducibility:
     name: "Check if builds are reproducible"
