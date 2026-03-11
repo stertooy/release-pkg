@@ -143,7 +143,7 @@ runs:
       shell: bash
       run: |
         mkdir -p "$RUNNER_TEMP/$BASENAME"
-        cp -r * "$RUNNER_TEMP/$BASENAME"
+        cp -r . "$RUNNER_TEMP/$BASENAME"
 
     - name: "Cleanup before making archives"
       shell: bash
@@ -151,6 +151,9 @@ runs:
       run: |
         echo "::group::Cleanup git and github related files"
         rm -rvf .git* .hg* .cvs* .circleci
+
+        echo "::group::Cleanup CI/action related files"
+        rm -rvf .this-action*
         
         echo "::group::Cleanup codecov, travis, azure-pipelines"
         rm -fv .codecov.* .travis.* .appveyor.* azure-pipelines.*
