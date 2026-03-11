@@ -15,7 +15,7 @@ inputs:
     required: false
     default: "Release of ${{ github.event.repository.name }}"
   affix:
-    description: "UNDOCUMENTED. Required for testing to ensure unique artifact names"
+    description: "UNDOCUMENTED, FOR INTERNAL USE ONLY. Required for testing to ensure unique artifact names"
     required: false
     default: ""
 
