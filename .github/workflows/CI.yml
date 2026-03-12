@@ -14,6 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        package: [ "gap-actions/ActionTestGAPDocPackage", "gap-actions/ActionTestOldDocPackage" ]
+        affix: [ 1, 2 ] # Run each package twice, to check reproducibility
         include:
           - package: "gap-actions/ActionTestGAPDocPackage"
             force: true
@@ -53,6 +55,56 @@ jobs:
         with:
           dry-run: true
           force: ${{ matrix.force }}
+          _affix: "-${{ matrix.affix }}"
+
+  check-reproducibility:
+    name: "Check if builds are reproducible"
+    runs-on: ubuntu-latest
+    needs: test-action
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [ "ActionTestGAPDocPackage", "ActionTestOldDocPackage" ]
+    steps:
+    
+      - name: "Download releases"
+        uses: actions/download-artifact@v8
+        with:
+          pattern: "Release_assets_for_${{ matrix.package }}*"
+          path: ${{ runner.temp }}
+          
+      - name: "Compare releases"
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        run: |
+          # Move downloaded assets
+          # The .zip is not an extension but part of the directory name
+          mv Release_assets_for_*-1.zip v1
+          mv Release_assets_for_*-2.zip v2
+
+          error_found=false
+          for EXT in .tar.gz .tar.bz2 .zip; do
+            for file1 in v1/*"$EXT"; do
+              file2="v2/$(basename "$file1")"
+
+              # Calculate sha256 checksums
+              chk1=$(sha256sum "$file1" | cut -d' ' -f1)
+              chk2=$(sha256sum "$file2" | cut -d' ' -f1)
+            
+              if [[ "$chk1" != "$chk2" ]]; then
+                echo "::error::Checksum mismatch for ${EXT} archives"
+                echo "v1: $chk1"
+                echo "v2: $chk2"
+                error_found=true
+              else
+                echo "${EXT} archives are reproducible"
+              fi
+            done
+          done
+
+          if ${error_found}; then
+            exit 1
+          fi
 
   test-scripts:
     name: "Test the scripts used by this action"
