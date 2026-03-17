@@ -250,10 +250,12 @@ runs:
     - name: "Copy body-text"
       if: ${{ inputs.dry-run == 'true' }}
       shell: bash
+      env:
+        BODY_TEXT: ${{ inputs.body-text }}
       run: |
         # Use heredoc construction to avoid evaluating backticks
         cat <<EOF > $RUNNER_TEMP/Release_text_for_${PKGNAME}_${VERSION}${{ inputs._affix }}.md
-        ${{ inputs.body-text }}
+        $BODY_TEXT
         EOF
 
     - name: "Upload the release assets"
