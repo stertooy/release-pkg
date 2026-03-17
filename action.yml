@@ -250,7 +250,11 @@ runs:
     - name: "Copy body-text"
       if: ${{ inputs.dry-run == 'true' }}
       shell: bash
-      run: echo "${{ inputs.body-text }}" > $RUNNER_TEMP/Release_text_for_${PKGNAME}_${VERSION}${{ inputs._affix }}.md
+      run: |
+        # Use heredoc construction to avoid evaluating backticks
+        cat <<EOF > $RUNNER_TEMP/Release_text_for_${PKGNAME}_${VERSION}${{ inputs._affix }}.md
+        ${{ inputs.body-text }}
+        EOF
 
     - name: "Upload the release assets"
       uses: actions/upload-artifact@v7
