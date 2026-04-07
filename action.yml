@@ -168,7 +168,8 @@ runs:
       working-directory: ${{ runner.temp }}/${{ env.BASENAME }}
       run: |
         if [ -x autogen.sh ] ; then
-          sudo apt-get install autoconf automake build-essential --yes
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends autoconf automake build-essential
           echo "Generating build system files"
           sh autogen.sh
           rm -rf autom4te.cache
